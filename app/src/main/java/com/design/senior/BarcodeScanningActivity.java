@@ -11,22 +11,18 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 public class BarcodeScanningActivity extends AppCompatActivity {
 
     private void scanBarcodes(FirebaseVisionImage image) {
-        // [START set_detector_options]
+        // Set the detector options
         FirebaseVisionBarcodeDetectorOptions options =
                 new FirebaseVisionBarcodeDetectorOptions.Builder()
                         .setBarcodeFormats(
+                                //Specify barcode formats here
                                 FirebaseVisionBarcode.FORMAT_QR_CODE,
                                 FirebaseVisionBarcode.FORMAT_AZTEC)
                         .build();
-    // [END set_detector_options]
 
-        // [START get_detector]
+        // Get the detector
         FirebaseVisionBarcodeDetector detector = FirebaseVision.getInstance()
-                .getVisionBarcodeDetector();
-        // Or, to specify the formats to recognize:
-        // FirebaseVisionBarcodeDetector detector = FirebaseVision.getInstance()
-        //        .getVisionBarcodeDetector(options);
-        // [END get_detector]
+                .getVisionBarcodeDetector(options);
 
        
     }
