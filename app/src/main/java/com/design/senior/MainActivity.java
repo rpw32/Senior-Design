@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startCamera() {
+
     }
 
     private boolean allPermissionsGranted(){
