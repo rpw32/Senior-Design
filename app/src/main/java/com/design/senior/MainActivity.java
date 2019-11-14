@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
+import androidx.camera.core.ImageOutputConfig;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.core.app.ActivityCompat;
@@ -26,6 +27,9 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import android.os.Bundle;
+
+import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata;
+
 import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
@@ -33,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
     private int REQUEST_CODE_PERMISSIONS = 101;
     private final String[] REQUIRED_PERMISSIONS = new String[]{"android.permission.CAMERA", "android.permission.WRITE_EXTERNAL_STORAGE"};
     TextureView textureView;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +52,45 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startCamera() {
+        CameraX.unbindAll();
 
+        PreviewConfig config = new PreviewConfig.Builder()
+                .setLensFacing(CameraX.LensFacing.BACK)
+                .build();
+        Preview preview = new Preview(config);
+
+        preview.setOnPreviewOutputUpdateListener(
+                new Preview.OnPreviewOutputUpdateListener() {
+                    @Override
+                    public void onUpdated(Preview.PreviewOutput previewOutput) {
+                        ViewGroup parent = (ViewGroup) textureView.getParent();
+                        parent.removeView(textureView);
+                        parent.addView(textureView, 0);
+
+                        textureView.setSurfaceTexture(previewOutput.getSurfaceTexture());
+
+                        // Compute center of preview
+                        float centerX = (float)textureView.getWidth()/2;
+                        float centerY = (float)textureView.getHeight()/2;
+
+                        int rotationDegrees;
+
+                        switch((int)textureView.getRotation()) {
+                            case Surface.ROTATION_0: rotationDegrees = 0; break;
+                            case Surface.ROTATION_90: rotationDegrees = 90; break;
+                            case Surface.ROTATION_180: rotationDegrees = 180; break;
+                            case Surface.ROTATION_270: rotationDegrees = 270; break;
+                            default: return;
+                        }
+
+                        Matrix matrix = new Matrix();
+                        matrix.postRotate((float)rotationDegrees,centerX,centerY);
+
+                        textureView.setTransform(matrix);
+                    }
+                });
+
+        CameraX.bindToLifecycle(this, preview);
     }
 
     private boolean allPermissionsGranted(){
