@@ -28,9 +28,14 @@ class CameraMainActivity : AppCompatActivity() {
         textureView = findViewById(R.id.view_finder)
 
         if (allPermissionsGranted()) {
-            startCamera() //start camera if permission has been granted by user
+            textureView.post{startCamera()} //start camera if permission has been granted by user
         } else {
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
+        }
+
+        // Every time the provided texture view changes, recompute layout
+        textureView.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            updateTransform()
         }
     }
 
@@ -44,15 +49,14 @@ class CameraMainActivity : AppCompatActivity() {
                 .build()
         val preview = Preview(config)
 
-        preview.setOnPreviewOutputUpdateListener(
-                Preview.OnPreviewOutputUpdateListener { previewOutput ->
+        preview.setOnPreviewOutputUpdateListener{
                     val parent = textureView.parent as ViewGroup
                     parent.removeView(textureView)
                     parent.addView(textureView, 0)
 
                     textureView.surfaceTexture = it.surfaceTexture
                     updateTransform()
-                })
+                }
 
         CameraX.bindToLifecycle(this, preview)
     }
@@ -69,7 +73,7 @@ class CameraMainActivity : AppCompatActivity() {
             Surface.ROTATION_90 -> rotationDegrees = 90
             Surface.ROTATION_180 -> rotationDegrees = 180
             Surface.ROTATION_270 -> rotationDegrees = 270
-            else -> return@OnPreviewOutputUpdateListener
+            else -> return
         }
 
         val matrix = Matrix()
@@ -91,15 +95,9 @@ class CameraMainActivity : AppCompatActivity() {
         }
     }
 
-    private fun allPermissionsGranted(): Boolean {
-
-        for (permission in REQUIRED_PERMISSIONS) {
-            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-                return false
-            }
-        }
-        return true
+    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
+        ContextCompat.checkSelfPermission(
+                baseContext, it) == PackageManager.PERMISSION_GRANTED
     }
 
-
-}
+    }

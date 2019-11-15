@@ -23,7 +23,5 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         // Get the detector
         FirebaseVisionBarcodeDetector detector = FirebaseVision.getInstance()
                 .getVisionBarcodeDetector(options);
-
-       
     }
 }
