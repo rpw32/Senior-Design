@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Matrix;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import android.os.Bundle;
@@ -33,10 +35,17 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata;
 import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
-
+    public static final String EXTRA_MESSAGE = "com.design.senior.MESSAGE";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     }
+
+
+    public void openCamera(View view){
+    Intent intent = new Intent(this, CameraMainActivity.class);
+    startActivity(intent);
+    }
+
 }

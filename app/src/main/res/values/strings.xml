@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Senior Design</string>
+    <string name="camera">Camera</string>
+    <string name="senior_design">Senior Design</string>
 </resources>
