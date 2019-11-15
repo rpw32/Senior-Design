@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.view.Surface
 import android.view.TextureView
 import android.view.ViewGroup
+import android.Manifest
+import android.widget.Toast
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraX
@@ -13,12 +15,12 @@ import androidx.camera.core.Preview
 import androidx.camera.core.PreviewConfig
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import java.util.concurrent.Executors
 
 class CameraMainActivity : AppCompatActivity() {
 
-    private val REQUEST_CODE_PERMISSIONS = 101
-    private val REQUIRED_PERMISSIONS = arrayOf("android.permission.CAMERA", "android.permission.WRITE_EXTERNAL_STORAGE")
-    private lateinit var textureView: TextureView
+    private val REQUEST_CODE_PERMISSIONS = 10
+    private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,8 +34,10 @@ class CameraMainActivity : AppCompatActivity() {
         }
     }
 
+    private val executor = Executors.newSingleThreadExecutor()
+    private lateinit var textureView: TextureView
+
     private fun startCamera() {
-        CameraX.unbindAll()
 
         val config = PreviewConfig.Builder()
                 .setLensFacing(CameraX.LensFacing.BACK)
@@ -46,29 +50,45 @@ class CameraMainActivity : AppCompatActivity() {
                     parent.removeView(textureView)
                     parent.addView(textureView, 0)
 
-                    textureView.surfaceTexture = previewOutput.surfaceTexture
-
-                    // Compute center of preview
-                    val centerX = textureView.width.toFloat() / 2
-                    val centerY = textureView.height.toFloat() / 2
-
-                    val rotationDegrees: Int
-
-                    when (textureView.rotation.toInt()) {
-                        Surface.ROTATION_0 -> rotationDegrees = 0
-                        Surface.ROTATION_90 -> rotationDegrees = 90
-                        Surface.ROTATION_180 -> rotationDegrees = 180
-                        Surface.ROTATION_270 -> rotationDegrees = 270
-                        else -> return@OnPreviewOutputUpdateListener
-                    }
-
-                    val matrix = Matrix()
-                    matrix.postRotate(rotationDegrees.toFloat(), centerX, centerY)
-
-                    textureView.setTransform(matrix)
+                    textureView.surfaceTexture = it.surfaceTexture
+                    updateTransform()
                 })
 
         CameraX.bindToLifecycle(this, preview)
+    }
+    private fun updateTransform(){
+
+        // Compute center of preview
+        val centerX = textureView.width.toFloat() / 2
+        val centerY = textureView.height.toFloat() / 2
+
+        val rotationDegrees: Int
+
+        when (textureView.rotation.toInt()) {
+            Surface.ROTATION_0 -> rotationDegrees = 0
+            Surface.ROTATION_90 -> rotationDegrees = 90
+            Surface.ROTATION_180 -> rotationDegrees = 180
+            Surface.ROTATION_270 -> rotationDegrees = 270
+            else -> return@OnPreviewOutputUpdateListener
+        }
+
+        val matrix = Matrix()
+        matrix.postRotate(rotationDegrees.toFloat(), centerX, centerY)
+
+        textureView.setTransform(matrix)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode == REQUEST_CODE_PERMISSIONS){
+            if (allPermissionsGranted()){
+                textureView.post{startCamera()}
+            } else{
+                Toast.makeText(this,
+                        "Permissions not granted by the user.",
+                        Toast.LENGTH_SHORT).show()
+                finish()
+            }
+        }
     }
 
     private fun allPermissionsGranted(): Boolean {
@@ -80,4 +100,6 @@ class CameraMainActivity : AppCompatActivity() {
         }
         return true
     }
+
+
 }
