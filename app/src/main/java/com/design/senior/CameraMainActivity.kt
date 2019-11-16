@@ -7,6 +7,7 @@ import android.view.Surface
 import android.view.TextureView
 import android.view.ViewGroup
 import android.Manifest
+import android.util.Size
 import android.widget.Toast
 
 import androidx.appcompat.app.AppCompatActivity
@@ -21,10 +22,11 @@ class CameraMainActivity : AppCompatActivity() {
 
     private val REQUEST_CODE_PERMISSIONS = 10
     private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
+    private lateinit var textureView: TextureView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.camera_main)
         textureView = findViewById(R.id.view_finder)
 
         if (allPermissionsGranted()) {
@@ -40,21 +42,20 @@ class CameraMainActivity : AppCompatActivity() {
     }
 
     private val executor = Executors.newSingleThreadExecutor()
-    private lateinit var textureView: TextureView
 
     private fun startCamera() {
 
-        val config = PreviewConfig.Builder()
-                .setLensFacing(CameraX.LensFacing.BACK)
-                .build()
+        val config = PreviewConfig.Builder().apply {
+            setLensFacing(CameraX.LensFacing.BACK)
+        }.build()
         val preview = Preview(config)
 
         preview.setOnPreviewOutputUpdateListener{
                     val parent = textureView.parent as ViewGroup
                     parent.removeView(textureView)
+                    textureView.surfaceTexture = it.surfaceTexture
                     parent.addView(textureView, 0)
 
-                    textureView.surfaceTexture = it.surfaceTexture
                     updateTransform()
                 }
 
