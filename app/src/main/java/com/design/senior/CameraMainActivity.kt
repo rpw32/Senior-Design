@@ -7,15 +7,16 @@ import android.view.Surface
 import android.view.TextureView
 import android.view.ViewGroup
 import android.Manifest
+import android.util.Log
 import android.util.Size
+import android.widget.ImageButton
 import android.widget.Toast
 
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.CameraX
-import androidx.camera.core.Preview
-import androidx.camera.core.PreviewConfig
+import androidx.camera.core.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import java.io.File
 import java.util.concurrent.Executors
 
 class CameraMainActivity : AppCompatActivity() {
@@ -59,7 +60,46 @@ class CameraMainActivity : AppCompatActivity() {
                     updateTransform()
                 }
 
-        CameraX.bindToLifecycle(this, preview)
+        // Create configuration object for the image capture use case
+        val imageCaptureConfig = ImageCaptureConfig.Builder()
+                .apply {
+                    // We don't set a resolution for image capture; instead, we
+                    // select a capture mode which will infer the appropriate
+                    // resolution based on aspect ration and requested mode
+                    setCaptureMode(ImageCapture.CaptureMode.MIN_LATENCY)
+                }.build()
+
+        // Build the image capture use case and attach button click listener
+        val imageCapture = ImageCapture(imageCaptureConfig)
+        findViewById<ImageButton>(R.id.imageButton).setOnClickListener {
+            val file = File(externalMediaDirs.first(),
+                    "${System.currentTimeMillis()}.jpg")
+
+            imageCapture.takePicture(file, executor,
+                    object : ImageCapture.OnImageSavedListener {
+                        override fun onError(
+                                imageCaptureError: ImageCapture.ImageCaptureError,
+                                message: String,
+                                exc: Throwable?
+                        ) {
+                            val msg = "Photo capture failed: $message"
+                            Log.e("CameraXApp", msg, exc)
+                            textureView.post {
+                                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+
+                        override fun onImageSaved(file: File) {
+                            val msg = "Photo capture succeeded: ${file.absolutePath}"
+                            Log.d("CameraXApp", msg)
+                            textureView.post {
+                                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    })
+        }
+
+        CameraX.bindToLifecycle(this, preview, imageCapture)
     }
     private fun updateTransform(){
 
