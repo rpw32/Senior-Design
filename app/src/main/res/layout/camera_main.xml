@@ -18,21 +18,4 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.426" />
 
-    <ImageButton
-        android:id="@+id/imageButton"
-        android:layout_width="45dp"
-        android:layout_height="44dp"
-        android:adjustViewBounds="true"
-        android:background="#2CFFFFFF"
-        android:contentDescription="@string/used_to_take_photo"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/view_finder"
-        app:layout_constraintVertical_bias="0.842"
-        app:srcCompat="@android:drawable/ic_menu_camera"
-        tools:srcCompat="@android:drawable/ic_menu_camera" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
