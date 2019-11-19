@@ -14,7 +14,8 @@ class BarCodeScanner(
 
     override fun analyze(image: ImageProxy, rotationDegrees: Int){
         val options = FirebaseVisionBarcodeDetectorOptions.Builder().apply {
-
+            setBarcodeFormats(
+                FirebaseVisionBarcode.FORMAT_ALL_FORMATS)
         }.build()
         val detector = FirebaseVision.getInstance().getVisionBarcodeDetector(options)
         val rotation = rotationDegreestoFirebaseRotation(rotationDegrees)

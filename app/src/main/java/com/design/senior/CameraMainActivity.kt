@@ -59,6 +59,7 @@ class CameraMainActivity : AppCompatActivity() {
                 }
 
         val analysisConfig = ImageAnalysisConfig.Builder().apply{
+            setImageReaderMode(ImageAnalysis.ImageReaderMode.ACQUIRE_LATEST_IMAGE)
         }.build()
 
         val analysis = ImageAnalysis(analysisConfig)
