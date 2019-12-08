@@ -19,10 +19,22 @@ public class MainActivity extends AppCompatActivity {
                 openActivitySearch();
             }
         });
+
+        final Button button2 = findViewById(R.id.button4);
+        button2.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                openActivityDetail();
+            }
+        });
     }
 
     public void openActivitySearch() {
         Intent intent = new Intent(this, activity_search_result.class);
+        startActivity(intent);
+    }
+
+    public void openActivityDetail() {
+        Intent intent = new Intent(this, activity_detail_result.class);
         startActivity(intent);
     }
 }

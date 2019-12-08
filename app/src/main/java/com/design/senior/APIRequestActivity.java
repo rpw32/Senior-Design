@@ -26,7 +26,7 @@ public class APIRequestActivity {
         if (generalSearchInput.equals(""))
             return null;
         if (includeDataTypes.equals(""))
-            includeDataTypes = "{\"Survey (FNDDS)\":true,\"Foundation\":true,\"Branded\":true}";
+            includeDataTypes = "{\"Survey (FNDDS)\":true,\"Foundation\":false,\"Branded\":true\"SR Legacy\":false, \"Experimental\":false}";
         if (requireAllWords.equals(""))
             requireAllWords = "true";
         if (pageNumber.equals(""))
