@@ -41,7 +41,7 @@ public class activity_search_result extends AppCompatActivity {
             APIRequestActivity inst1 = new APIRequestActivity();
 
             JSONObject response;
-            response = inst1.searchRequest("apple", "", "true", "", "", "");
+            response = inst1.searchRequest("767335000821", "", "true", "", "", "");
 
             Iterator x = response.keys();
             JSONArray arrayResponse = new JSONArray();
