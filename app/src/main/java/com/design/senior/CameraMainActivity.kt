@@ -7,6 +7,7 @@ import android.view.Surface
 import android.view.TextureView
 import android.view.ViewGroup
 import android.Manifest
+import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 
@@ -15,6 +16,9 @@ import androidx.camera.core.*
 import androidx.camera.core.ImageAnalysis
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.design.senior.activity_detail_result
+import kotlinx.android.synthetic.main.activity_detail_result.*
+import org.json.JSONObject
 import java.util.concurrent.Executors
 
 class CameraMainActivity : AppCompatActivity() {
@@ -64,15 +68,20 @@ class CameraMainActivity : AppCompatActivity() {
 
         val analysis = ImageAnalysis(analysisConfig)
 
+        val intent = Intent(this, activity_detail_result::class.java)
+
         val barCodeAnalyzer = BarCodeScanner { barCodes ->
             barCodes.forEach {
                 Log.d("CameraMainActivity", "Barcode Detected: ${it.rawValue}.")
+                intent.putExtra("gtinUpc", it.rawValue.toString())
             }
         }
 
         analysis.setAnalyzer(executor, barCodeAnalyzer)
 
         CameraX.bindToLifecycle(this, preview, analysis)
+
+        startActivity(intent);
     }
     private fun updateTransform(){
 

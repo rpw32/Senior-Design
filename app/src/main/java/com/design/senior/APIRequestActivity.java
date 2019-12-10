@@ -43,7 +43,7 @@ public class APIRequestActivity {
         OkHttpClient client = new OkHttpClient();
 
         MediaType mediaType = MediaType.parse("application/json");
-        RequestBody body = create(requestBody, mediaType);
+        RequestBody body = create(mediaType, requestBody);
         Request request = new Request.Builder()
                 .url("https://api.nal.usda.gov/fdc/v1/search?api_key=BL2Ukd4QaZD2OXHr2ZCFZyqEph957r1NoQTWxV6x")
                 .post(body)
@@ -58,15 +58,12 @@ public class APIRequestActivity {
         return jsonObject;
     }
 
-    public JSONObject detailRequest (String foodId) throws IOException, JSONException {
+    public JSONObject detailRequest (int foodId) throws IOException, JSONException {
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-        if (foodId == null)
-            return null;
-
-        String url = String.format("https://api.nal.usda.gov/fdc/v1/%s?api_key=BL2Ukd4QaZD2OXHr2ZCFZyqEph957r1NoQTWxV6x", foodId);
+        String url = String.format("https://api.nal.usda.gov/fdc/v1/%d?api_key=BL2Ukd4QaZD2OXHr2ZCFZyqEph957r1NoQTWxV6x", foodId);
 
         OkHttpClient client = new OkHttpClient();
 

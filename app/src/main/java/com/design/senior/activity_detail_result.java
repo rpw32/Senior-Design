@@ -1,5 +1,6 @@
 package com.design.senior;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -26,18 +27,32 @@ public class activity_detail_result extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_result);
 
-        Button buttonParse = findViewById(R.id.button_parse);
+        Intent intent = getIntent();
+        String gtinUpc = intent.getStringExtra("gtinUpc");
+        APIRequestActivity inst1 = new APIRequestActivity();
 
-        buttonParse.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                detailParse();
+        JSONObject response;
+        int fdcId;
+
+        if (gtinUpc == null)
+            return;
+        else {
+            try {
+                response = inst1.searchRequest(gtinUpc, "", "true", "", "", "");
+                JSONArray foodsArray = response.getJSONArray("foods");
+                JSONObject food = foodsArray.getJSONObject(0);
+                fdcId = food.getInt("fdcId");
+                detailParse(fdcId);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-        });
+        }
 
     }
 
-    private void detailParse() {
+    private void detailParse(int fdcId) {
 
         try {
             APIRequestActivity inst1 = new APIRequestActivity();
@@ -45,7 +60,7 @@ public class activity_detail_result extends AppCompatActivity {
 
             JSONObject response;
             JSONArray foodNutrients;
-            response = inst1.detailRequest("503165");
+            response = inst1.detailRequest(fdcId);
 
             DecimalFormat df = new DecimalFormat("#.##");
             df.setRoundingMode(RoundingMode.CEILING);

@@ -13,7 +13,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Iterator;
-
 public class activity_search_result extends AppCompatActivity {
 
     private TextView mTextViewResult;
