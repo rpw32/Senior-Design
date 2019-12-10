@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.Manifest
 import android.content.Intent
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 
 import androidx.appcompat.app.AppCompatActivity
@@ -17,11 +16,11 @@ import androidx.camera.core.*
 import androidx.camera.core.ImageAnalysis
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.design.senior.MainActivity.EXTRA_MESSAGE
-import com.design.senior.activity_detail_result
-import kotlinx.android.synthetic.main.activity_detail_result.*
-import org.json.JSONObject
 import java.util.concurrent.Executors
+
+
+
+
 
 class CameraMainActivity : AppCompatActivity() {
 
@@ -46,6 +45,12 @@ class CameraMainActivity : AppCompatActivity() {
         }
 
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        flag = 0
     }
 
     private val executor = Executors.newSingleThreadExecutor()
@@ -78,7 +83,7 @@ class CameraMainActivity : AppCompatActivity() {
             barCodes.forEach() {
                 Log.d("CameraMainActivity", "Barcode Detected: ${it.rawValue}.")
                 setMessage(intent, it.rawValue.toString())
-                startActivity(intent)
+                startDetail(intent)
             }
         }
 
@@ -86,6 +91,16 @@ class CameraMainActivity : AppCompatActivity() {
         analysis.setAnalyzer(executor, barCodeAnalyzer)
 
         CameraX.bindToLifecycle(this, preview, analysis)
+
+    }
+    var flag = 0
+
+    private fun startDetail(intent: Intent){
+        if(flag == 0)
+        {
+            flag += 1
+            startActivity(intent)
+        }
 
     }
 

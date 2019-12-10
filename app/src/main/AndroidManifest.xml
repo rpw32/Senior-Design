@@ -20,14 +20,15 @@
             android:name=".CameraMainActivity"
             android:parentActivityName=".MainActivity"></activity>
         <activity android:name=".activity_search_result"></activity>
-        <activity android:name=".activity_detail_result"></activity>
+        <activity
+            android:name=".activity_detail_result"
+            android:parentActivityName=".CameraMainActivity"></activity>
         <activity android:name=".FoodTestActivity"></activity>
         <activity android:name=".APIRequestActivity"></activity>
         <activity android:name=".FoodInformation"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
