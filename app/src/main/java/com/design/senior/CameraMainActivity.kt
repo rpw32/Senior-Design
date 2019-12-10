@@ -69,11 +69,13 @@ class CameraMainActivity : AppCompatActivity() {
         val analysis = ImageAnalysis(analysisConfig)
 
         val intent = Intent(this, activity_detail_result::class.java)
+        var gtinUpc = "N/A"
+
 
         val barCodeAnalyzer = BarCodeScanner { barCodes ->
-            barCodes.forEach {
+            barCodes.forEach() {
                 Log.d("CameraMainActivity", "Barcode Detected: ${it.rawValue}.")
-                intent.putExtra("gtinUpc", it.rawValue.toString())
+                gtinUpc = it.rawValue.toString()
             }
         }
 
@@ -81,7 +83,9 @@ class CameraMainActivity : AppCompatActivity() {
 
         CameraX.bindToLifecycle(this, preview, analysis)
 
-        startActivity(intent);
+
+        intent.putExtra("gtinUpc", gtinUpc)
+        startActivity(intent)
     }
     private fun updateTransform(){
 

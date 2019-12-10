@@ -27,7 +27,6 @@
         android:layout_marginTop="192dp"
         android:layout_marginEnd="137dp"
         android:text="@string/senior_design"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.656"
         app:layout_constraintStart_toStartOf="parent"
