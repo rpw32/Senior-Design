@@ -28,7 +28,7 @@ public class activity_detail_result extends AppCompatActivity {
         setContentView(R.layout.activity_detail_result);
 
         Intent intent = getIntent();
-        String gtinUpc = intent.getStringExtra("gtinUpc");
+        String gtinUpc = CameraMainActivity.Companion.getMessage(intent);
         APIRequestActivity inst1 = new APIRequestActivity();
 
         JSONObject response;

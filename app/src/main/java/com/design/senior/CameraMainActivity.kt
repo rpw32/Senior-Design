@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.Manifest
 import android.content.Intent
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 
 import androidx.appcompat.app.AppCompatActivity
@@ -16,6 +17,7 @@ import androidx.camera.core.*
 import androidx.camera.core.ImageAnalysis
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.design.senior.MainActivity.EXTRA_MESSAGE
 import com.design.senior.activity_detail_result
 import kotlinx.android.synthetic.main.activity_detail_result.*
 import org.json.JSONObject
@@ -42,6 +44,8 @@ class CameraMainActivity : AppCompatActivity() {
         textureView.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
             updateTransform()
         }
+
+
     }
 
     private val executor = Executors.newSingleThreadExecutor()
@@ -67,26 +71,38 @@ class CameraMainActivity : AppCompatActivity() {
         }.build()
 
         val analysis = ImageAnalysis(analysisConfig)
-
-        val intent = Intent(this, activity_detail_result::class.java)
-        var gtinUpc = "N/A"
+        val intent = Intent(this, com.design.senior.activity_detail_result::class.java)
 
 
         val barCodeAnalyzer = BarCodeScanner { barCodes ->
             barCodes.forEach() {
                 Log.d("CameraMainActivity", "Barcode Detected: ${it.rawValue}.")
-                gtinUpc = it.rawValue.toString()
+                setMessage(intent, it.rawValue.toString())
+                startActivity(intent)
             }
         }
+
 
         analysis.setAnalyzer(executor, barCodeAnalyzer)
 
         CameraX.bindToLifecycle(this, preview, analysis)
 
-
-        intent.putExtra("gtinUpc", gtinUpc)
-        startActivity(intent)
     }
+
+    companion object{
+        private const val EXTRA_MESSAGE  = ""
+
+        fun getMessage(intent: Intent): String? {
+            return intent.getStringExtra(EXTRA_MESSAGE)
+        }
+
+        fun setMessage(intent: Intent, message: String?){
+            intent.putExtra(EXTRA_MESSAGE, message)
+        }
+
+    }
+
+
     private fun updateTransform(){
 
         // Compute center of preview
@@ -128,4 +144,5 @@ class CameraMainActivity : AppCompatActivity() {
     }
 
     }
+
 
