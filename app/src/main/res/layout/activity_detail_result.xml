@@ -32,9 +32,10 @@
         app:layout_constraintTop_toBottomOf="@+id/foodTitle">
 
         <TableLayout
-            android:layout_width="match_parent"
+            android:layout_width="350dp"
             android:layout_height="wrap_content"
-            android:stretchColumns="1">
+            android:stretchColumns="1"
+            android:layout_gravity="center">
 
             <TextView
                 android:id="@+id/servingSize"
