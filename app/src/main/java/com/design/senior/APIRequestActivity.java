@@ -26,7 +26,7 @@ public class APIRequestActivity {
         if (generalSearchInput.equals(""))
             return null;
         if (includeDataTypes.equals(""))
-            includeDataTypes = "{\"Survey (FNDDS)\":true,\"Foundation\":false,\"Branded\":true\"SR Legacy\":false, \"Experimental\":false}";
+            includeDataTypes = "{\"Survey (FNDDS)\":true,\"Foundation\":false,\"Branded\":true, \"SR Legacy\":false, \"Experimental\":false}";
         if (requireAllWords.equals(""))
             requireAllWords = "true";
         if (pageNumber.equals(""))
@@ -37,7 +37,7 @@ public class APIRequestActivity {
             sortDirection = "asc";
 
         // Create the body of the request using the passed parameters
-        String requestBody = String.format("{\n\t\"generalSearchInput\":\"%s\",\n\t\"requireAllWords\":\"%s\",\n\t\"pageNumber\":\"%s\",\n\t\"sortField\":\"%s\",\n\t\"sortDirection\":\"%s\"\n}", generalSearchInput, requireAllWords, pageNumber, sortField, sortDirection);
+        String requestBody = String.format("{\r\n\t\"generalSearchInput\":\"%s\",\r\n\t\"includeDataTypes\":%s,\r\n\t\"requireAllWords\":\"%s\",\r\n\t\"pageNumber\":\"%s\",\r\n\t\"sortField\":\"%s\",\r\n\t\"sortDirection\":\"%s\"\r\n}", generalSearchInput, includeDataTypes, requireAllWords, pageNumber, sortField, sortDirection);
 
         // Request is sent via OkHttp
         OkHttpClient client = new OkHttpClient();
