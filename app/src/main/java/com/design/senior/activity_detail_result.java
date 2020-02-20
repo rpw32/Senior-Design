@@ -1,12 +1,23 @@
 package com.design.senior;
 
+import android.app.Application;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ScrollView;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,12 +33,19 @@ import java.util.Iterator;
 import java.util.List;
 
 public class activity_detail_result extends AppCompatActivity {
-    private TextView mTextViewResult;
+    private TextView textView;
+    private ScrollView scrollView;
+    private TableLayout detailTable;
+    private FoodViewModel model;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_result);
+        model = new ViewModelProvider(this, new MyViewModelFactory(getApplication(), (double) 0)).get(FoodViewModel.class);
+
+        scrollView = (ScrollView) findViewById(R.id.scrollView);
+        detailTable = (TableLayout) findViewById(R.id.detailTable);
 
         int fdcId;
 
@@ -68,8 +86,10 @@ public class activity_detail_result extends AppCompatActivity {
     }
 
     private void detailParse(int fdcId) { // Given the fdcId, will parse all the details for the given food
-
         try {
+            scrollView.scrollTo(0, 0); // Reset scrollView position to the top
+            detailTable.removeAllViews(); // Reset table, make sure its empty before populating it again
+
             APIRequestActivity inst1 = new APIRequestActivity();
             FoodInformation food1 = new FoodInformation();
             JSONObject response = inst1.detailRequest(fdcId);
@@ -78,6 +98,10 @@ public class activity_detail_result extends AppCompatActivity {
             JSONObject nutrient;
             JSONObject loopFoodNutrient;
             JSONArray foodNutrients;
+
+            // Portion weights and descriptions are stored in lists
+            ArrayList<String> portionWeights = new ArrayList<>();
+            ArrayList<String> portionDescriptions = new ArrayList<>();
 
             DecimalFormat df = new DecimalFormat("#.##"); // Used to format data when printing
             df.setRoundingMode(RoundingMode.CEILING);
@@ -92,25 +116,28 @@ public class activity_detail_result extends AppCompatActivity {
                 food1.brandOwner = response.getString("brandOwner");
                 food1.gtinUpc = response.getString("gtinUpc");
                 food1.ingredients = response.getString("ingredients");
-                food1.servingSize = response.getDouble("servingSize");
+                if (model.getServingSize() == 0)
+                    food1.servingSize = response.getDouble("servingSize");
+                else
+                    food1.servingSize = model.getServingSize();
                 food1.servingSizeUnit = response.getString("servingSizeUnit");
                 food1.householdServingFullText = response.getString("householdServingFullText");
                 food1.brandedFoodCategory = response.getString("brandedFoodCategory");
-            }
-            else { // Foods from the Survey database come with food portions
+            } else { // Foods from the Survey database come with food portions
                 JSONArray foodPortions = response.getJSONArray("foodPortions");
-                // Portion weights and descriptions are stored in lists
-                List<Double> portionWeights = new ArrayList<>();
-                List<String> portionDescriptions = new ArrayList<>();
 
                 // Loop through all portions
                 for (int i = 0; i < foodPortions.length(); i++) {
                     foodPortion = foodPortions.getJSONObject(i);
-                    portionWeights.add(foodPortion.getDouble("gramWeight"));
+                    Double portionWeight = foodPortion.getDouble("gramWeight");
+                    portionWeights.add(portionWeight.toString());
                     portionDescriptions.add(foodPortion.getString("portionDescription"));
                 }
                 foodPortion = foodPortions.getJSONObject(0); // Default to first food portion
-                food1.servingSize = foodPortion.getDouble("gramWeight");
+                if (model.getServingSize() == 0)
+                    food1.servingSize = foodPortion.getDouble("gramWeight");
+                else
+                    food1.servingSize = model.getServingSize();
                 food1.servingSizeUnit = "g";
                 food1.householdServingFullText = foodPortion.getString("portionDescription");
             }
@@ -119,7 +146,7 @@ public class activity_detail_result extends AppCompatActivity {
 
             for (int i = 0; i < foodNutrients.length(); i++) { // Loop through the food nutrient array
                 loopFoodNutrient = foodNutrients.getJSONObject(i); // get nutrient i
-                nutrient = loopFoodNutrient.getJSONObject("nutrient"); // "nutrient" object is always at index 2
+                nutrient = loopFoodNutrient.getJSONObject("nutrient"); // grab nutrient as JSONObject
                 nutrientId = (int) nutrient.get("id"); // get the nutrient id
                 nutrientAmount = loopFoodNutrient.getDouble("amount"); // get the amount
                 nutrientAmount = (nutrientAmount / 100) * food1.servingSize; // amount is based on 100g, this converts the amount to the appropriate serving size
@@ -175,87 +202,336 @@ public class activity_detail_result extends AppCompatActivity {
                 }
             }
 
+            TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT); // Set parameters for the searchTable rows, so they wrap to content
+            TableRow.LayoutParams textParams = new TableRow.LayoutParams(0, TableLayout.LayoutParams.WRAP_CONTENT, 1f); // Set parameters for the textView
+
+            Integer rowNumber = 0;
+
             // Begin printing to detail page
-            mTextViewResult = findViewById(R.id.foodTitle);
-            mTextViewResult.append(food1.description);
-            mTextViewResult = findViewById(R.id.servingSize);
-            mTextViewResult.append("Serving size: " + df.format(food1.servingSize) + " " + food1.servingSizeUnit + "\n");
-            mTextViewResult.append("Portion description: " + food1.householdServingFullText);
+            TableRow row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append(food1.description);
+            row.addView(textView);
+            detailTable.addView(row, (rowNumber));
+            rowNumber++;
 
             // Printing Macros / Micros
-            mTextViewResult = findViewById(R.id.calories);
-            mTextViewResult.append("Calories: " + df.format(food1.calories));
-            mTextViewResult = findViewById(R.id.fat);
-            mTextViewResult.append("Fat: " + df.format(food1.fat) + " g");
-            mTextViewResult = findViewById(R.id.saturatedFat);
-            mTextViewResult.append("Saturated Fat: " + df.format(food1.saturatedFat) + " g");
-            mTextViewResult = findViewById(R.id.transFat);
-            mTextViewResult.append("Trans Fat: " + df.format(food1.transFat) + " g");
-            mTextViewResult = findViewById(R.id.cholesterol);
-            mTextViewResult.append("Cholesterol: " + df.format(food1.cholesterol) + " mg");
-            mTextViewResult = findViewById(R.id.sodium);
-            mTextViewResult.append("Sodium: " + df.format(food1.sodium) + " mg");
-            mTextViewResult = findViewById(R.id.carbohydrates);
-            mTextViewResult.append("Carbohydrates: " + df.format(food1.carbohydrates) + " g");
-            mTextViewResult = findViewById(R.id.fiber);
-            mTextViewResult.append("Fiber: " + df.format(food1.fiber) + " g");
-            mTextViewResult = findViewById(R.id.sugars);
-            mTextViewResult.append("Sugars: " + df.format(food1.sugars) + " g");
-            mTextViewResult = findViewById(R.id.protein);
-            mTextViewResult.append("Protein: " + df.format(food1.protein) + " g");
-            mTextViewResult = findViewById(R.id.vitaminD);
-            mTextViewResult.append("Vitamin D: " + df.format(food1.vitaminD) + " IU");
-            mTextViewResult = findViewById(R.id.calcium);
-            mTextViewResult.append("Calcium: " + df.format(food1.calcium) + " mg");
-            mTextViewResult = findViewById(R.id.iron);
-            mTextViewResult.append("Iron: " + df.format(food1.iron) + " mg");
-            mTextViewResult = findViewById(R.id.potassium);
-            mTextViewResult.append("Potassium: " + df.format(food1.potassium) + " mg");
-            mTextViewResult = findViewById(R.id.vitaminA);
-            mTextViewResult.append("Vitamin A: " + df.format(food1.vitaminA) + " IU");
-            mTextViewResult = findViewById(R.id.vitaminC);
-            mTextViewResult.append("Vitamin C: " + df.format(food1.vitaminC) + " IU");
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            Integer servingViewId = View.generateViewId();
+            textView.setId(servingViewId);
+            textView.append("Serving size: " + df.format(food1.servingSize) + " " + food1.servingSizeUnit + "\n");
+            textView.append("Portion description: " + food1.householdServingFullText);
+            row.addView(textView);
+            detailTable.addView(row, (rowNumber));
+            rowNumber++;
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append("Calories: " + df.format(food1.calories));
+            row.addView(textView);
+            detailTable.addView(row, (rowNumber));
+            rowNumber++;
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append("Fat: " + df.format(food1.fat) + " g");
+            row.addView(textView);
+            detailTable.addView(row, (rowNumber));
+            rowNumber++;
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append("Saturated Fat: " + df.format(food1.saturatedFat) + " g");
+            row.addView(textView);
+            detailTable.addView(row, (rowNumber));
+            rowNumber++;
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append("Trans Fat: " + df.format(food1.transFat) + " g");
+            row.addView(textView);
+            detailTable.addView(row, (rowNumber));
+            rowNumber++;
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append("Cholesterol: " + df.format(food1.cholesterol) + " mg");
+            row.addView(textView);
+            detailTable.addView(row, (rowNumber));
+            rowNumber++;
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append("Sodium: " + df.format(food1.sodium) + " mg");
+            row.addView(textView);
+            detailTable.addView(row, (rowNumber));
+            rowNumber++;
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append("Carbohydrates: " + df.format(food1.carbohydrates) + " g");
+            row.addView(textView);
+            detailTable.addView(row, (rowNumber));
+            rowNumber++;
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append("Fiber: " + df.format(food1.fiber) + " g");
+            row.addView(textView);
+            detailTable.addView(row, (rowNumber));
+            rowNumber++;
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append("Sugars: " + df.format(food1.sugars) + " g");
+            row.addView(textView);
+            detailTable.addView(row, (rowNumber));
+            rowNumber++;
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append("Protein: " + df.format(food1.protein) + " g");
+            row.addView(textView);
+            detailTable.addView(row, (rowNumber));
+            rowNumber++;
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append("Vitamin D: " + df.format(food1.vitaminD) + " IU");
+            row.addView(textView);
+            detailTable.addView(row, (rowNumber));
+            rowNumber++;
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append("Calcium: " + df.format(food1.calcium) + " mg");
+            row.addView(textView);
+            detailTable.addView(row, (rowNumber));
+            rowNumber++;
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append("Iron: " + df.format(food1.iron) + " mg");
+            row.addView(textView);
+            detailTable.addView(row, (rowNumber));
+            rowNumber++;
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append("Potassium: " + df.format(food1.potassium) + " mg");
+            row.addView(textView);
+            detailTable.addView(row, (rowNumber));
+            rowNumber++;
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append("Vitamin A: " + df.format(food1.vitaminA) + " IU");
+            row.addView(textView);
+            detailTable.addView(row, (rowNumber));
+            rowNumber++;
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append("Vitamin C: " + df.format(food1.vitaminC) + " IU");
+            row.addView(textView);
+            detailTable.addView(row, (rowNumber));
+            rowNumber++;
+
 
             // Only foods from the Branded database have this information
             if (food1.foodClass.equals("Branded")) {
-                mTextViewResult = findViewById(R.id.ingredients);
-                mTextViewResult.append("Ingredients: " + food1.ingredients);
-                mTextViewResult = findViewById(R.id.brandOwner);
-                mTextViewResult.append("Brand Owner: " + food1.brandOwner);
-                mTextViewResult = findViewById(R.id.brandedFoodCategory);
-                mTextViewResult.append("Food Category: " + food1.brandedFoodCategory);
-                mTextViewResult = findViewById(R.id.gtinUpc);
-                mTextViewResult.append("Universal Product Code: " + food1.gtinUpc);
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(Color.parseColor("#000000"));
+                textView.setLayoutParams(textParams);
+                textView.append("Ingredients: " + food1.ingredients);
+                row.addView(textView);
+                detailTable.addView(row, (rowNumber));
+                rowNumber++;
+
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(Color.parseColor("#000000"));
+                textView.setLayoutParams(textParams);
+                textView.append("Brand Owner: " + food1.brandOwner);
+                row.addView(textView);
+                detailTable.addView(row, (rowNumber));
+                rowNumber++;
+
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(Color.parseColor("#000000"));
+                textView.setLayoutParams(textParams);
+                textView.append("Food Category: " + food1.brandedFoodCategory);
+                row.addView(textView);
+                detailTable.addView(row, (rowNumber));
+                rowNumber++;
+
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(Color.parseColor("#000000"));
+                textView.setLayoutParams(textParams);
+                textView.append("Universal Product Code: " + food1.gtinUpc);
+                row.addView(textView);
+                detailTable.addView(row, (rowNumber));
+                rowNumber++;
+
             }
 
             // Not necessary to print, but can be handy
-            mTextViewResult = findViewById(R.id.fdcId);
-            mTextViewResult.append("Food Data Central ID: " + food1.fdcId);
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append("Food Data Central ID: " + food1.fdcId);
+            row.addView(textView);
+            detailTable.addView(row, (rowNumber));
+            rowNumber++;
+
 
             // Calorie Density test
             FoodTestActivity test1 = new FoodTestActivity();
             String calorieDensity = test1.calorieDensity(food1.calories, food1.servingSize);
-            mTextViewResult = findViewById(R.id.calorieDensity);
-            mTextViewResult.append("\n\nCalorie Density Test: \n" + calorieDensity);
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append("\n\nCalorie Density Test: \n" + calorieDensity);
+            row.addView(textView);
+            detailTable.addView(row, (rowNumber));
+            rowNumber++;
+
 
             // Dialog box to get serving size from the user
-            mTextViewResult = findViewById(R.id.servingSize);
-            mTextViewResult.setOnClickListener(new View.OnClickListener() {
+            textView = findViewById(servingViewId);
+            textView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    servingDialog();
+                    // If the food is branded, the portions are defaulted to the household serving size
+                    if (food1.foodClass.equals("Branded")) {
+                        portionWeights.clear();
+                        portionDescriptions.clear();
+                        Double portionWeight = food1.servingSize;
+                        portionWeights.add(portionWeight.toString());
+                        portionDescriptions.add(food1.householdServingFullText);
+                    }
+                    servingDialog(portionWeights, portionDescriptions);
+                    detailParse(food1.fdcId);
                 }
             });
-
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
 
     }
 
-    public void servingDialog() {
+    public void servingDialog(ArrayList<String> portionWeights, ArrayList<String> portionDescriptions) {
         ServingDialog servingDialog = new ServingDialog();
-        servingDialog.show(getSupportFragmentManager(), "serving dialog");
+//        servingDialog.show(getSupportFragmentManager(), "serving dialog");
+        Intent intent = new Intent(getApplicationContext(), servingDialog.getClass()); // CHECK THIS
+        intent.putExtra("portionWeights", portionWeights);
+        intent.putExtra("portionDescriptions", portionDescriptions);
+        startActivity(intent);
+    }
+
+    public class FoodViewModel extends AndroidViewModel {
+        private Double servingSize;
+
+        public FoodViewModel(@NonNull Application application, Double servingSize) {
+            super(application);
+            this.servingSize = servingSize;
+        }
+
+        public Double getServingSize() {
+            return servingSize;
+        }
+
+        public void setServingSize(Double newSize) {
+            servingSize = newSize;
+        }
+    }
+
+    public class MyViewModelFactory implements ViewModelProvider.Factory {
+        @NonNull
+        private final Application application;
+        private final Double servingSize;
+
+
+        public MyViewModelFactory(@NonNull Application application, Double servingSize) {
+            this.application = application;
+            this.servingSize = servingSize;
+        }
+
+        @NonNull
+        @Override
+        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
+            if (modelClass == FoodViewModel.class)
+                return (T) new FoodViewModel(application, servingSize);
+            else
+                return null;
+        }
     }
 
 }

@@ -26,6 +26,9 @@
         <activity android:name=".FoodTestActivity"></activity>
         <activity android:name=".APIRequestActivity"></activity>
         <activity android:name=".FoodInformation"></activity>
+        <activity
+            android:name=".ServingDialog"
+            android:parentActivityName=".activity_detail_result"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
