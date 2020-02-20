@@ -1,6 +1,7 @@
 package com.design.senior;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -61,10 +63,22 @@ public class activity_detail_result extends AppCompatActivity implements Serving
 
             try {
                 response = inst1.searchRequest(gtinUpc, "", "true", "", "", "");
-                JSONArray foodsArray = response.getJSONArray("foods");
-                JSONObject food = foodsArray.getJSONObject(0);
-                fdcId = food.getInt("fdcId");
-                detailParse(fdcId);
+                String totalHits = response.getString("totalHits");
+                if (Integer.parseInt(totalHits) < 1) {
+                    Context context = getApplicationContext();
+                    CharSequence text = "UPC not found. Try searching instead?";
+                    int duration = Toast.LENGTH_LONG;
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                    Intent intent1 = new Intent(this, activity_search_result.class);
+                    startActivity(intent1);
+                }
+                else {
+                    JSONArray foodsArray = response.getJSONArray("foods");
+                    JSONObject food = foodsArray.getJSONObject(0);
+                    fdcId = food.getInt("fdcId");
+                    detailParse(fdcId);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {
