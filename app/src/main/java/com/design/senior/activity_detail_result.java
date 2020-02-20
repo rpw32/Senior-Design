@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ScrollView;
@@ -32,22 +33,20 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class activity_detail_result extends AppCompatActivity {
+public class activity_detail_result extends AppCompatActivity implements ServingDialog.ServingDialogListener {
     private TextView textView;
     private ScrollView scrollView;
     private TableLayout detailTable;
-    private FoodViewModel model;
+    private Double servingSelection;
+    private int fdcId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_result);
-        model = new ViewModelProvider(this, new MyViewModelFactory(getApplication(), (double) 0)).get(FoodViewModel.class);
 
         scrollView = (ScrollView) findViewById(R.id.scrollView);
         detailTable = (TableLayout) findViewById(R.id.detailTable);
-
-        int fdcId;
 
         // If called from CameraMainActivity, will store the UPC
         Intent intent = getIntent();
@@ -116,10 +115,10 @@ public class activity_detail_result extends AppCompatActivity {
                 food1.brandOwner = response.getString("brandOwner");
                 food1.gtinUpc = response.getString("gtinUpc");
                 food1.ingredients = response.getString("ingredients");
-                if (model.getServingSize() == 0)
+                if (servingSelection == null)
                     food1.servingSize = response.getDouble("servingSize");
                 else
-                    food1.servingSize = model.getServingSize();
+                    food1.servingSize = servingSelection;
                 food1.servingSizeUnit = response.getString("servingSizeUnit");
                 food1.householdServingFullText = response.getString("householdServingFullText");
                 food1.brandedFoodCategory = response.getString("brandedFoodCategory");
@@ -134,15 +133,16 @@ public class activity_detail_result extends AppCompatActivity {
                     portionDescriptions.add(foodPortion.getString("portionDescription"));
                 }
                 foodPortion = foodPortions.getJSONObject(0); // Default to first food portion
-                if (model.getServingSize() == 0)
+                if (servingSelection == null)
                     food1.servingSize = foodPortion.getDouble("gramWeight");
                 else
-                    food1.servingSize = model.getServingSize();
+                    food1.servingSize = servingSelection;
                 food1.servingSizeUnit = "g";
                 food1.householdServingFullText = foodPortion.getString("portionDescription");
             }
 
             food1.fdcId = response.getInt("fdcId");
+            fdcId = food1.fdcId;
 
             for (int i = 0; i < foodNutrients.length(); i++) { // Loop through the food nutrient array
                 loopFoodNutrient = foodNutrients.getJSONObject(i); // get nutrient i
@@ -213,6 +213,8 @@ public class activity_detail_result extends AppCompatActivity {
             textView = new TextView(this);
             textView.setTextColor(Color.parseColor("#000000"));
             textView.setLayoutParams(textParams);
+            textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+            textView.setTextSize(24);
             textView.append(food1.description);
             row.addView(textView);
             detailTable.addView(row, (rowNumber));
@@ -478,7 +480,6 @@ public class activity_detail_result extends AppCompatActivity {
                         portionDescriptions.add(food1.householdServingFullText);
                     }
                     servingDialog(portionWeights, portionDescriptions);
-                    detailParse(food1.fdcId);
                 }
             });
         } catch (IOException | JSONException e) {
@@ -489,49 +490,17 @@ public class activity_detail_result extends AppCompatActivity {
 
     public void servingDialog(ArrayList<String> portionWeights, ArrayList<String> portionDescriptions) {
         ServingDialog servingDialog = new ServingDialog();
-//        servingDialog.show(getSupportFragmentManager(), "serving dialog");
-        Intent intent = new Intent(getApplicationContext(), servingDialog.getClass()); // CHECK THIS
-        intent.putExtra("portionWeights", portionWeights);
-        intent.putExtra("portionDescriptions", portionDescriptions);
-        startActivity(intent);
+        Bundle bundle = new Bundle();
+        bundle.putStringArrayList("portionWeights", portionWeights);
+        bundle.putStringArrayList("portionDescriptions", portionDescriptions);
+        servingDialog.setArguments(bundle);
+        servingDialog.show(getSupportFragmentManager(), "serving dialog");
     }
 
-    public class FoodViewModel extends AndroidViewModel {
-        private Double servingSize;
-
-        public FoodViewModel(@NonNull Application application, Double servingSize) {
-            super(application);
-            this.servingSize = servingSize;
-        }
-
-        public Double getServingSize() {
-            return servingSize;
-        }
-
-        public void setServingSize(Double newSize) {
-            servingSize = newSize;
-        }
-    }
-
-    public class MyViewModelFactory implements ViewModelProvider.Factory {
-        @NonNull
-        private final Application application;
-        private final Double servingSize;
-
-
-        public MyViewModelFactory(@NonNull Application application, Double servingSize) {
-            this.application = application;
-            this.servingSize = servingSize;
-        }
-
-        @NonNull
-        @Override
-        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-            if (modelClass == FoodViewModel.class)
-                return (T) new FoodViewModel(application, servingSize);
-            else
-                return null;
-        }
+    @Override
+    public void servingSelection(Double servingSize) {
+        servingSelection = servingSize;
+        detailParse(fdcId);
     }
 
 }

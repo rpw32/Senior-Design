@@ -16,6 +16,7 @@ import android.widget.Spinner;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialogFragment;
+import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.lang.reflect.Array;
@@ -24,24 +25,22 @@ import java.util.ArrayList;
 public class ServingDialog extends AppCompatDialogFragment {
     private EditText numServings;
     private Spinner portionSpinner;
-    private activity_detail_result.FoodViewModel model;
     private Double servingSize;
+    private ServingDialogListener listener;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        model = new ViewModelProvider(this).get(activity_detail_result.FoodViewModel.class);
-
-
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.serving_dialog, null);
 
-        ArrayList<String> portionWeights = getActivity().getIntent().getExtras().getStringArrayList("portionWeights");
-        ArrayList<String> portionDescriptions = getActivity().getIntent().getExtras().getStringArrayList("portionDescriptions");
+        Bundle bundle = getArguments();
+        ArrayList<String> portionWeights = bundle.getStringArrayList("portionWeights");
+        ArrayList<String> portionDescriptions = bundle.getStringArrayList("portionDescriptions");
         ArrayList<String> portionDisplayed = new ArrayList<String>();
 
         for (int i = 0; i < portionDescriptions.size(); i++) {
-            String portionFormat = portionDescriptions.get(i) + "(" + portionWeights.get(i) + " g)";
+            String portionFormat = portionDescriptions.get(i) + " (" + portionWeights.get(i) + " g)";
             portionDisplayed.add(portionFormat);
         }
 
@@ -54,7 +53,7 @@ public class ServingDialog extends AppCompatDialogFragment {
                 .setTitle("How Much?")
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onClick(DialogInterface dialog, int i) {
                         dialog.dismiss();
                     }
                 })
@@ -64,14 +63,27 @@ public class ServingDialog extends AppCompatDialogFragment {
                         int index = portionSpinner.getSelectedItemPosition();
                         String stringSize = portionWeights.get(index);
                         servingSize = Double.parseDouble(stringSize);
+                        servingSize = servingSize * Double.parseDouble(numServings.getText().toString());
+                        listener.servingSelection(servingSize);
                         dialog.dismiss();
                     }
                 });
-        if (servingSize != null) {
-            model.setServingSize(servingSize);
-        }
 
         return builder.create();
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        try {
+            listener = (ServingDialogListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + "must implement ServingDialogListener");
+        }
+    }
+
+    public interface ServingDialogListener {
+        void servingSelection(Double servingSize);
     }
 
 }
