@@ -15,6 +15,8 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.json.JSONArray;
@@ -26,13 +28,13 @@ import java.io.IOException;
 public class SearchResultActivity extends AppCompatActivity {
 
     int pageNumber = 1; // Search page defaults at 1
+    final boolean[] processClick = {true}; // Boolean variable is used to prevent multiple button presses
+    int position[] = {0, 0}; // Used to restore scroll position if screen is rotated
     String search;
     EditText searchInput;
     Button searchButton;
     TableLayout searchTable;
     ScrollView scrollView;
-    final boolean[] processClick = {true}; // Boolean variable is used to prevent multiple button presses
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,7 +106,11 @@ public class SearchResultActivity extends AppCompatActivity {
     private void searchParse() { // Parse the API Search response
 
         try {
-            scrollView.scrollTo(0, 0); // Reset scrollView position to the top
+            // scrollView defaults to 0
+            if (position[0] == 0) {
+                scrollView.scrollTo(0, 0); // Reset scrollView position to the top
+            }
+
             searchTable.removeAllViews(); // Reset table, make sure its empty before populating it again
 
             APIRequestActivity inst1 = new APIRequestActivity();
@@ -252,9 +258,31 @@ public class SearchResultActivity extends AppCompatActivity {
             searchButton.setEnabled(true);
             searchButton.setClickable(true);
 
+            // Scroll is restored if the screen is rotated
+            if (position[0] != 0) {
+                scrollView.scrollTo(position[0], position[1]);
+                position[0] = 0;
+                position[1] = 0;
+            }
+
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
 
+    }
+
+    // When the screen is rotated, the scrollView position is saved
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        position[0] = scrollView.getScrollX();
+        position[1] = scrollView.getScrollY();
+    }
+
+    // After screen rotation, searchParse() is called again
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        searchButton.performClick();
     }
 }
