@@ -1,6 +1,6 @@
 package com.design.senior;
 
-import android.app.ActionBar;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -15,6 +15,8 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.json.JSONArray;
@@ -22,11 +24,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.Iterator;
 
-public class activity_search_result extends AppCompatActivity {
+public class SearchResultActivity extends AppCompatActivity {
 
     int pageNumber = 1; // Search page defaults at 1
+    final boolean[] processClick = {true}; // Boolean variable is used to prevent multiple button presses
+    int position[] = {0, 0}; // Used to restore scroll position if screen is rotated
     String search;
     EditText searchInput;
     Button searchButton;
@@ -43,6 +46,13 @@ public class activity_search_result extends AppCompatActivity {
         searchButton = (Button) findViewById(R.id.searchButton);
         searchTable = (TableLayout) findViewById(R.id.searchTable);
         scrollView = (ScrollView) findViewById(R.id.scrollView);
+
+        // If upcTitle is bundled, it is set as the searchInput text
+        Intent intent = getIntent();
+        String upcTitle = intent.getStringExtra("upcTitle");
+        if (upcTitle != null) {
+            searchInput.setText(upcTitle);
+        }
 
         // If the user hits enter on the keyboard, it is treated as a click for the "Submit" button
         searchInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -61,13 +71,32 @@ public class activity_search_result extends AppCompatActivity {
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (searchInput.getText().toString().isEmpty()) {
-                    Toast.makeText(getApplicationContext(), "Enter a search term", Toast.LENGTH_SHORT).show();
-                }
-                else {
-                    search = searchInput.getText().toString(); // User input is stored to search string
-                    pageNumber = 1; // Reset pageNumber to 1 when Search button is pressed
-                    searchParse();
+                // When processClick[0] is true, the button can be pressed
+                if (processClick[0]) {
+                    // Check if input field is populated
+                    if (searchInput.getText().toString().isEmpty()) {
+                        Toast.makeText(getApplicationContext(), "Enter a search term", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Check for internet connectivity
+                        InternetCheck internetCheck = new InternetCheck();
+                        // If there is no internet, searchParse() is not called
+                        if (!internetCheck.isOnline()) {
+                            Context context = getApplicationContext();
+                            CharSequence text = "Internet connection not detected.";
+                            int duration = Toast.LENGTH_LONG;
+                            Toast toast = Toast.makeText(context, text, duration);
+                            toast.show();
+                        }
+                        // Button is disabled until searchParse() is finished running
+                        else {
+                            processClick[0] = false;
+                            searchButton.setEnabled(false);
+                            searchButton.setClickable(false);
+                            search = searchInput.getText().toString(); // User input is stored to search string
+                            pageNumber = 1; // Reset pageNumber to 1 when Search button is pressed
+                            searchParse();
+                        }
+                    }
                 }
             }
         });
@@ -77,7 +106,11 @@ public class activity_search_result extends AppCompatActivity {
     private void searchParse() { // Parse the API Search response
 
         try {
-            scrollView.scrollTo(0, 0); // Reset scrollView position to the top
+            // scrollView defaults to 0
+            if (position[0] == 0) {
+                scrollView.scrollTo(0, 0); // Reset scrollView position to the top
+            }
+
             searchTable.removeAllViews(); // Reset table, make sure its empty before populating it again
 
             APIRequestActivity inst1 = new APIRequestActivity();
@@ -174,7 +207,7 @@ public class activity_search_result extends AppCompatActivity {
                     @Override
                     public void onClick(View v)
                     {
-                        Intent i = new Intent(activity_search_result.this, activity_detail_result.class);
+                        Intent i = new Intent(SearchResultActivity.this, DetailResultActivity.class);
                         i.putExtra("fdcId", fdcId);
                         startActivity(i);
                     }
@@ -220,9 +253,36 @@ public class activity_search_result extends AppCompatActivity {
                 });
             }
 
+            // Reset search button
+            processClick[0] = true;
+            searchButton.setEnabled(true);
+            searchButton.setClickable(true);
+
+            // Scroll is restored if the screen is rotated
+            if (position[0] != 0) {
+                scrollView.scrollTo(position[0], position[1]);
+                position[0] = 0;
+                position[1] = 0;
+            }
+
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
 
+    }
+
+    // When the screen is rotated, the scrollView position is saved
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        position[0] = scrollView.getScrollX();
+        position[1] = scrollView.getScrollY();
+    }
+
+    // After screen rotation, searchParse() is called again
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        searchButton.performClick();
     }
 }

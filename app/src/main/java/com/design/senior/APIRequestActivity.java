@@ -80,4 +80,29 @@ public class APIRequestActivity {
         return jsonObject;
     }
 
+    // Uses upcitemdb API to find the name of a product based on the UPC
+    public JSONObject upcLookup (String gtinUpc) throws IOException, JSONException {
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+        String requestBody = String.format("{\r\n\t\"upc\":\"%s\"\r\n}", gtinUpc);
+
+        OkHttpClient client = new OkHttpClient();
+
+        MediaType mediaType = MediaType.parse("application/json");
+        RequestBody body = RequestBody.create(mediaType, requestBody);
+        Request request = new Request.Builder()
+                .url("https://api.upcitemdb.com/prod/trial/lookup")
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        Response response = client.newCall(request).execute();
+
+        String jsonData = response.body().string();
+        JSONObject jsonObject = new JSONObject(jsonData);
+        return jsonObject;
+    }
+
 }

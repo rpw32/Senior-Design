@@ -1,14 +1,11 @@
 package com.design.senior;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -17,25 +14,17 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.ViewModel;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
-public class activity_detail_result extends AppCompatActivity implements ServingDialog.ServingDialogListener {
+public class DetailResultActivity extends AppCompatActivity implements ServingDialog.ServingDialogListener {
     private TextView textView;
     private ScrollView scrollView;
     private TableLayout detailTable;
@@ -50,9 +39,29 @@ public class activity_detail_result extends AppCompatActivity implements Serving
         scrollView = (ScrollView) findViewById(R.id.scrollView);
         detailTable = (TableLayout) findViewById(R.id.detailTable);
 
+        // servingSelection is restored if the screen was rotated
+        if (savedInstanceState != null) {
+            servingSelection = savedInstanceState.getDouble("servingSelection");
+            // If servingSelection is 0, then it was not bundled in savedInstanceState. Default to null
+            if (servingSelection == 0) {
+                servingSelection = null;
+            }
+        }
+
         // If called from CameraMainActivity, will store the UPC
         Intent intent = getIntent();
         String gtinUpc = CameraMainActivity.Companion.getMessage(intent);
+
+        // Check for internet connectivity
+        InternetCheck internetCheck = new InternetCheck();
+        if (!internetCheck.isOnline()) {
+            Context context = getApplicationContext();
+            CharSequence text = "Internet connection not detected.";
+            int duration = Toast.LENGTH_LONG;
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+            finish();
+        }
 
         // If a UPC is given, the fdcId will be found
         if (gtinUpc != null) {
@@ -64,15 +73,37 @@ public class activity_detail_result extends AppCompatActivity implements Serving
             try {
                 response = inst1.searchRequest(gtinUpc, "", "true", "", "", "");
                 String totalHits = response.getString("totalHits");
+
+                // If UPC does not return any results, a manual search will be attempted
                 if (Integer.parseInt(totalHits) < 1) {
+                    String upcTitle = null;
                     Context context = getApplicationContext();
-                    CharSequence text = "UPC not found. Try searching instead?";
+                    CharSequence text = "UPC not found in database. Try searching instead?";
                     int duration = Toast.LENGTH_LONG;
                     Toast toast = Toast.makeText(context, text, duration);
                     toast.show();
-                    Intent intent1 = new Intent(this, activity_search_result.class);
+
+                    // Call upcitemdb
+                    response = inst1.upcLookup(gtinUpc);
+
+                    // Check if the response contains the UPC information
+                    if (response.has("items")) {
+                        JSONArray itemsArray = response.getJSONArray("items");
+                        JSONObject itemsObject = itemsArray.getJSONObject(0);
+                        upcTitle = itemsObject.getString("title");
+                    }
+
+                    Intent intent1 = new Intent(this, SearchResultActivity.class);
+
+                    // Bundle the upcTitle if the API call was successful
+                    if (upcTitle != null) {
+                        intent1.putExtra("upcTitle", upcTitle);
+                    }
+
                     startActivity(intent1);
+                    finish();
                 }
+                // If UPC does return a result, fdcId is found and detailParse() is called
                 else {
                     JSONArray foodsArray = response.getJSONArray("foods");
                     JSONObject food = foodsArray.getJSONObject(0);
@@ -85,7 +116,7 @@ public class activity_detail_result extends AppCompatActivity implements Serving
                 e.printStackTrace();
             }
         }
-        // Otherwise, the fdcId must be given. If it isn't bundled, the function returns
+        // If the UPC isn't given, the fdcId must be given. If it isn't bundled, the function returns
         else {
             Bundle b = getIntent().getExtras();
             fdcId = 0;
@@ -502,6 +533,7 @@ public class activity_detail_result extends AppCompatActivity implements Serving
 
     }
 
+    // Creates the servingDialog
     public void servingDialog(ArrayList<String> portionWeights, ArrayList<String> portionDescriptions) {
         ServingDialog servingDialog = new ServingDialog();
         Bundle bundle = new Bundle();
@@ -511,10 +543,20 @@ public class activity_detail_result extends AppCompatActivity implements Serving
         servingDialog.show(getSupportFragmentManager(), "serving dialog");
     }
 
+    // When the serving size is selected from the servingDialog, the page is updated
     @Override
     public void servingSelection(Double servingSize) {
         servingSelection = servingSize;
         detailParse(fdcId);
+    }
+
+    // When the screen is rotated, the scrollView position is saved
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (servingSelection != null) {
+            outState.putDouble("servingSelection", servingSelection);
+        }
     }
 
 }
