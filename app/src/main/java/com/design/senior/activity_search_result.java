@@ -1,6 +1,5 @@
 package com.design.senior;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -22,7 +21,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 public class activity_search_result extends AppCompatActivity {
 
@@ -45,6 +43,13 @@ public class activity_search_result extends AppCompatActivity {
         searchButton = (Button) findViewById(R.id.searchButton);
         searchTable = (TableLayout) findViewById(R.id.searchTable);
         scrollView = (ScrollView) findViewById(R.id.scrollView);
+
+        // If upcTitle is bundled, it is set as the searchInput text
+        Intent intent = getIntent();
+        String upcTitle = intent.getStringExtra("upcTitle");
+        if (upcTitle != null) {
+            searchInput.setText(upcTitle);
+        }
 
         // If the user hits enter on the keyboard, it is treated as a click for the "Submit" button
         searchInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {

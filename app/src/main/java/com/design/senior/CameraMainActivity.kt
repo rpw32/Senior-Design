@@ -1,25 +1,20 @@
 package com.design.senior
 
+import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Matrix
 import android.os.Bundle
+import android.util.Log
 import android.view.Surface
 import android.view.TextureView
 import android.view.ViewGroup
-import android.Manifest
-import android.content.Intent
-import android.util.Log
 import android.widget.Toast
-
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
-import androidx.camera.core.ImageAnalysis
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import java.util.concurrent.Executors
-
-
-
 
 
 class CameraMainActivity : AppCompatActivity() {
@@ -84,6 +79,7 @@ class CameraMainActivity : AppCompatActivity() {
                 Log.d("CameraMainActivity", "Barcode Detected: ${it.rawValue}.")
                 setMessage(intent, it.rawValue.toString())
                 startDetail(intent)
+                finish()
             }
         }
 

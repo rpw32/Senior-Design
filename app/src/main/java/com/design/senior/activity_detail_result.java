@@ -52,14 +52,35 @@ public class activity_detail_result extends AppCompatActivity implements Serving
             try {
                 response = inst1.searchRequest(gtinUpc, "", "true", "", "", "");
                 String totalHits = response.getString("totalHits");
+
+                // If UPC does not return any results, a manual search will be attempted
                 if (Integer.parseInt(totalHits) < 1) {
+                    String upcTitle = null;
                     Context context = getApplicationContext();
-                    CharSequence text = "UPC not found. Try searching instead?";
+                    CharSequence text = "UPC not found in database. Try searching instead?";
                     int duration = Toast.LENGTH_LONG;
                     Toast toast = Toast.makeText(context, text, duration);
                     toast.show();
+
+                    // Makes call to upcitemdb
+                    response = inst1.upcLookup(gtinUpc);
+
+                    // Check if the response contains the UPC information
+                    if (response.has("items")) {
+                        JSONArray itemsArray = response.getJSONArray("items");
+                        JSONObject itemsObject = itemsArray.getJSONObject(0);
+                        upcTitle = itemsObject.getString("title");
+                    }
+
                     Intent intent1 = new Intent(this, activity_search_result.class);
+
+                    // Bundle the upcTitle if the API call was successful
+                    if (upcTitle != null) {
+                        intent1.putExtra("upcTitle", upcTitle);
+                    }
+
                     startActivity(intent1);
+                    finish();
                 }
                 else {
                     JSONArray foodsArray = response.getJSONArray("foods");
