@@ -32,6 +32,8 @@ public class activity_search_result extends AppCompatActivity {
     Button searchButton;
     TableLayout searchTable;
     ScrollView scrollView;
+    final boolean[] processClick = {true}; // Boolean variable is used to prevent multiple button presses
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,13 +63,17 @@ public class activity_search_result extends AppCompatActivity {
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (searchInput.getText().toString().isEmpty()) {
-                    Toast.makeText(getApplicationContext(), "Enter a search term", Toast.LENGTH_SHORT).show();
-                }
-                else {
-                    search = searchInput.getText().toString(); // User input is stored to search string
-                    pageNumber = 1; // Reset pageNumber to 1 when Search button is pressed
-                    searchParse();
+                if (processClick[0]) {
+                    if (searchInput.getText().toString().isEmpty()) {
+                        Toast.makeText(getApplicationContext(), "Enter a search term", Toast.LENGTH_SHORT).show();
+                    } else {
+                        processClick[0] = false;
+                        searchButton.setEnabled(false);
+                        searchButton.setClickable(false);
+                        search = searchInput.getText().toString(); // User input is stored to search string
+                        pageNumber = 1; // Reset pageNumber to 1 when Search button is pressed
+                        searchParse();
+                    }
                 }
             }
         });
@@ -219,6 +225,11 @@ public class activity_search_result extends AppCompatActivity {
                     }
                 });
             }
+
+            // Reset search button
+            processClick[0] = true;
+            searchButton.setEnabled(true);
+            searchButton.setClickable(true);
 
         } catch (IOException | JSONException e) {
             e.printStackTrace();
