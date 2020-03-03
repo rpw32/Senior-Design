@@ -42,6 +42,17 @@ public class activity_detail_result extends AppCompatActivity implements Serving
         Intent intent = getIntent();
         String gtinUpc = CameraMainActivity.Companion.getMessage(intent);
 
+        // Check for internet connectivity
+        InternetCheck internetCheck = new InternetCheck();
+        if (!internetCheck.isOnline()) {
+            Context context = getApplicationContext();
+            CharSequence text = "Internet connection not detected.";
+            int duration = Toast.LENGTH_LONG;
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+            finish();
+        }
+
         // If a UPC is given, the fdcId will be found
         if (gtinUpc != null) {
 

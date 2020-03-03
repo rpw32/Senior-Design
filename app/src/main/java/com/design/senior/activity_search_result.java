@@ -1,5 +1,6 @@
 package com.design.senior;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -72,12 +73,23 @@ public class activity_search_result extends AppCompatActivity {
                     if (searchInput.getText().toString().isEmpty()) {
                         Toast.makeText(getApplicationContext(), "Enter a search term", Toast.LENGTH_SHORT).show();
                     } else {
-                        processClick[0] = false;
-                        searchButton.setEnabled(false);
-                        searchButton.setClickable(false);
-                        search = searchInput.getText().toString(); // User input is stored to search string
-                        pageNumber = 1; // Reset pageNumber to 1 when Search button is pressed
-                        searchParse();
+                        // Check for internet connectivity
+                        InternetCheck internetCheck = new InternetCheck();
+                        if (!internetCheck.isOnline()) {
+                            Context context = getApplicationContext();
+                            CharSequence text = "Internet connection not detected.";
+                            int duration = Toast.LENGTH_LONG;
+                            Toast toast = Toast.makeText(context, text, duration);
+                            toast.show();
+                        }
+                        else {
+                            processClick[0] = false;
+                            searchButton.setEnabled(false);
+                            searchButton.setClickable(false);
+                            search = searchInput.getText().toString(); // User input is stored to search string
+                            pageNumber = 1; // Reset pageNumber to 1 when Search button is pressed
+                            searchParse();
+                        }
                     }
                 }
             }
