@@ -23,7 +23,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class activity_search_result extends AppCompatActivity {
+public class SearchResultActivity extends AppCompatActivity {
 
     int pageNumber = 1; // Search page defaults at 1
     String search;
@@ -69,12 +69,15 @@ public class activity_search_result extends AppCompatActivity {
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // When processClick[0] is true, the button can be pressed
                 if (processClick[0]) {
+                    // Check if input field is populated
                     if (searchInput.getText().toString().isEmpty()) {
                         Toast.makeText(getApplicationContext(), "Enter a search term", Toast.LENGTH_SHORT).show();
                     } else {
                         // Check for internet connectivity
                         InternetCheck internetCheck = new InternetCheck();
+                        // If there is no internet, searchParse() is not called
                         if (!internetCheck.isOnline()) {
                             Context context = getApplicationContext();
                             CharSequence text = "Internet connection not detected.";
@@ -82,6 +85,7 @@ public class activity_search_result extends AppCompatActivity {
                             Toast toast = Toast.makeText(context, text, duration);
                             toast.show();
                         }
+                        // Button is disabled until searchParse() is finished running
                         else {
                             processClick[0] = false;
                             searchButton.setEnabled(false);
@@ -197,7 +201,7 @@ public class activity_search_result extends AppCompatActivity {
                     @Override
                     public void onClick(View v)
                     {
-                        Intent i = new Intent(activity_search_result.this, activity_detail_result.class);
+                        Intent i = new Intent(SearchResultActivity.this, DetailResultActivity.class);
                         i.putExtra("fdcId", fdcId);
                         startActivity(i);
                     }

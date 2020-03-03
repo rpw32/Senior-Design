@@ -71,7 +71,7 @@ class CameraMainActivity : AppCompatActivity() {
         }.build()
 
         val analysis = ImageAnalysis(analysisConfig)
-        val intent = Intent(this, com.design.senior.activity_detail_result::class.java)
+        val intent = Intent(this, DetailResultActivity::class.java)
 
 
         val barCodeAnalyzer = BarCodeScanner { barCodes ->

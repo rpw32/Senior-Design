@@ -23,7 +23,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-public class activity_detail_result extends AppCompatActivity implements ServingDialog.ServingDialogListener {
+public class DetailResultActivity extends AppCompatActivity implements ServingDialog.ServingDialogListener {
     private TextView textView;
     private ScrollView scrollView;
     private TableLayout detailTable;
@@ -73,7 +73,7 @@ public class activity_detail_result extends AppCompatActivity implements Serving
                     Toast toast = Toast.makeText(context, text, duration);
                     toast.show();
 
-                    // Makes call to upcitemdb
+                    // Call upcitemdb
                     response = inst1.upcLookup(gtinUpc);
 
                     // Check if the response contains the UPC information
@@ -83,7 +83,7 @@ public class activity_detail_result extends AppCompatActivity implements Serving
                         upcTitle = itemsObject.getString("title");
                     }
 
-                    Intent intent1 = new Intent(this, activity_search_result.class);
+                    Intent intent1 = new Intent(this, SearchResultActivity.class);
 
                     // Bundle the upcTitle if the API call was successful
                     if (upcTitle != null) {
@@ -93,6 +93,7 @@ public class activity_detail_result extends AppCompatActivity implements Serving
                     startActivity(intent1);
                     finish();
                 }
+                // If UPC does return a result, fdcId is found and detailParse() is called
                 else {
                     JSONArray foodsArray = response.getJSONArray("foods");
                     JSONObject food = foodsArray.getJSONObject(0);
@@ -105,7 +106,7 @@ public class activity_detail_result extends AppCompatActivity implements Serving
                 e.printStackTrace();
             }
         }
-        // Otherwise, the fdcId must be given. If it isn't bundled, the function returns
+        // If the UPC isn't given, the fdcId must be given. If it isn't bundled, the function returns
         else {
             Bundle b = getIntent().getExtras();
             fdcId = 0;
@@ -522,6 +523,7 @@ public class activity_detail_result extends AppCompatActivity implements Serving
 
     }
 
+    // Creates the servingDialog
     public void servingDialog(ArrayList<String> portionWeights, ArrayList<String> portionDescriptions) {
         ServingDialog servingDialog = new ServingDialog();
         Bundle bundle = new Bundle();
@@ -531,6 +533,7 @@ public class activity_detail_result extends AppCompatActivity implements Serving
         servingDialog.show(getSupportFragmentManager(), "serving dialog");
     }
 
+    // When the serving size is selected from the servingDialog, the page is updated
     @Override
     public void servingSelection(Double servingSize) {
         servingSelection = servingSize;

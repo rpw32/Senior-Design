@@ -28,11 +28,13 @@ public class ServingDialog extends AppCompatDialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.serving_dialog, null);
 
+        // Portion weights and descriptions are passed as arguments
         Bundle bundle = getArguments();
         ArrayList<String> portionWeights = bundle.getStringArrayList("portionWeights");
         ArrayList<String> portionDescriptions = bundle.getStringArrayList("portionDescriptions");
         ArrayList<String> portionDisplayed = new ArrayList<String>();
 
+        // Combine each description and weight into one string
         for (int i = 0; i < portionDescriptions.size(); i++) {
             String portionFormat = portionDescriptions.get(i) + " (" + portionWeights.get(i) + " g)";
             portionDisplayed.add(portionFormat);
@@ -66,6 +68,7 @@ public class ServingDialog extends AppCompatDialogFragment {
         return builder.create();
     }
 
+    // Listener is used to pass the servingSize back to the detail page
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
