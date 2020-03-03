@@ -12,6 +12,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.json.JSONArray;
@@ -37,6 +38,15 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
 
         scrollView = (ScrollView) findViewById(R.id.scrollView);
         detailTable = (TableLayout) findViewById(R.id.detailTable);
+
+        // servingSelection is restored if the screen was rotated
+        if (savedInstanceState != null) {
+            servingSelection = savedInstanceState.getDouble("servingSelection");
+            // If servingSelection is 0, then it was not bundled in savedInstanceState. Default to null
+            if (servingSelection == 0) {
+                servingSelection = null;
+            }
+        }
 
         // If called from CameraMainActivity, will store the UPC
         Intent intent = getIntent();
@@ -538,6 +548,15 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
     public void servingSelection(Double servingSize) {
         servingSelection = servingSize;
         detailParse(fdcId);
+    }
+
+    // When the screen is rotated, the scrollView position is saved
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (servingSelection != null) {
+            outState.putDouble("servingSelection", servingSelection);
+        }
     }
 
 }
