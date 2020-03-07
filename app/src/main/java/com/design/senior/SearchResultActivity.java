@@ -77,25 +77,13 @@ public class SearchResultActivity extends AppCompatActivity {
                     if (searchInput.getText().toString().isEmpty()) {
                         Toast.makeText(getApplicationContext(), "Enter a search term", Toast.LENGTH_SHORT).show();
                     } else {
-                        // Check for internet connectivity
-                        InternetCheck internetCheck = new InternetCheck();
-                        // If there is no internet, searchParse() is not called
-                        if (!internetCheck.isOnline()) {
-                            Context context = getApplicationContext();
-                            CharSequence text = "Internet connection not detected.";
-                            int duration = Toast.LENGTH_LONG;
-                            Toast toast = Toast.makeText(context, text, duration);
-                            toast.show();
-                        }
                         // Button is disabled until searchParse() is finished running
-                        else {
-                            processClick[0] = false;
-                            searchButton.setEnabled(false);
-                            searchButton.setClickable(false);
-                            search = searchInput.getText().toString(); // User input is stored to search string
-                            pageNumber = 1; // Reset pageNumber to 1 when Search button is pressed
-                            searchParse();
-                        }
+                        processClick[0] = false;
+                        searchButton.setEnabled(false);
+                        searchButton.setClickable(false);
+                        search = searchInput.getText().toString(); // User input is stored to search string
+                        pageNumber = 1; // Reset pageNumber to 1 when Search button is pressed
+                        searchParse();
                     }
                 }
             }
@@ -113,10 +101,34 @@ public class SearchResultActivity extends AppCompatActivity {
 
             searchTable.removeAllViews(); // Reset table, make sure its empty before populating it again
 
-            APIRequestActivity inst1 = new APIRequestActivity();
-
+            DatabaseHelper mDatabaseHelper = new DatabaseHelper(this);
             JSONObject response;
-            response = inst1.searchRequest(search, "", "true", String.valueOf(pageNumber), "", "");
+
+            // Check local database for response. If it exists, fetch the response locally
+            if (mDatabaseHelper.searchCheckAlreadyExist(search)) {
+                String databaseResponse = mDatabaseHelper.searchGetData(search);
+                response = new JSONObject(databaseResponse); // Responses are converted to JSONObjects so they can be parsed
+            }
+            // Else, the response is fetched and saved locally
+            else {
+                // Check for internet connectivity
+                InternetCheck internetCheck = new InternetCheck();
+                // If there is no internet, searchParse() is not called
+                if (!internetCheck.isOnline()) {
+                    Context context = getApplicationContext();
+                    CharSequence text = "Internet connection not detected.";
+                    int duration = Toast.LENGTH_LONG;
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                    return;
+                }
+                else {
+                    APIRequestActivity inst1 = new APIRequestActivity();
+                    response = inst1.searchRequest(search, "", "true", String.valueOf(pageNumber), "", "");
+                    String databaseString = response.toString();
+                    mDatabaseHelper.searchAddData(search, databaseString);
+                }
+            }
 
             // Search result stats always located at the top
             String totalHits = response.getString("totalHits");

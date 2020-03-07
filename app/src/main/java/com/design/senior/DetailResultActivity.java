@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ScrollView;
@@ -52,20 +53,20 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
         Intent intent = getIntent();
         String gtinUpc = CameraMainActivity.Companion.getMessage(intent);
 
-        // Check for internet connectivity
-        InternetCheck internetCheck = new InternetCheck();
-        if (!internetCheck.isOnline()) {
-            Context context = getApplicationContext();
-            CharSequence text = "Internet connection not detected.";
-            int duration = Toast.LENGTH_LONG;
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
-            finish();
-        }
 
         // If a UPC is given, the fdcId will be found
         if (gtinUpc != null) {
 
+            // Check for internet connectivity
+            InternetCheck internetCheck = new InternetCheck();
+            if (!internetCheck.isOnline()) {
+                Context context = getApplicationContext();
+                CharSequence text = "Internet connection not detected.";
+                int duration = Toast.LENGTH_LONG;
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
+                finish();
+            }
             // Preparation for API call
             APIRequestActivity inst1 = new APIRequestActivity();
             JSONObject response;
@@ -74,8 +75,19 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
                 response = inst1.searchRequest(gtinUpc, "", "true", "", "", "");
                 String totalHits = response.getString("totalHits");
 
-                // If UPC does not return any results, a manual search will be attempted
+                // First attempt is made with scanned UPC. If failed, will try again with altered UPC
                 if (Integer.parseInt(totalHits) < 1) {
+                    // API will sometimes only recognize the UPC if it's 14 characters
+                    if (gtinUpc.length() == 12) {
+                        gtinUpc = "00" + gtinUpc;
+                        response = inst1.searchRequest(gtinUpc, "", "true", "", "", "");
+                        totalHits = response.getString("totalHits");
+                    }
+                }
+
+                // If UPC does not return any results after both attempts, a manual search will be attempted
+                if (Integer.parseInt(totalHits) < 1) {
+                    DatabaseHelper mDatabaseHelper = new DatabaseHelper(this);
                     String upcTitle = null;
                     Context context = getApplicationContext();
                     CharSequence text = "UPC not found in database. Try searching instead?";
@@ -83,14 +95,25 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
                     Toast toast = Toast.makeText(context, text, duration);
                     toast.show();
 
-                    // Call upcitemdb
-                    response = inst1.upcLookup(gtinUpc);
+                    if (mDatabaseHelper.upcCheckAlreadyExist(gtinUpc)) {
+                        upcTitle = mDatabaseHelper.upcGetData(gtinUpc);
+                    }
+                    else {
+                        // Check for connectivity before making call
+                        if (internetCheck.isOnline()) {
+                            // Call upcitemdb
+                            response = inst1.upcLookup(gtinUpc);
+                        }
 
-                    // Check if the response contains the UPC information
-                    if (response.has("items")) {
-                        JSONArray itemsArray = response.getJSONArray("items");
-                        JSONObject itemsObject = itemsArray.getJSONObject(0);
-                        upcTitle = itemsObject.getString("title");
+                        // Check if the response contains the UPC information
+                        if (response.has("items")) {
+                            JSONArray itemsArray = response.getJSONArray("items");
+                            JSONObject itemsObject = itemsArray.getJSONObject(0);
+                            upcTitle = itemsObject.getString("title");
+                        }
+
+                        // Add to local database
+                        mDatabaseHelper.upcAddData(gtinUpc, upcTitle);
                     }
 
                     Intent intent1 = new Intent(this, SearchResultActivity.class);
@@ -134,9 +157,33 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             scrollView.scrollTo(0, 0); // Reset scrollView position to the top
             detailTable.removeAllViews(); // Reset table, make sure its empty before populating it again
 
-            APIRequestActivity inst1 = new APIRequestActivity();
             FoodInformation food1 = new FoodInformation();
-            JSONObject response = inst1.detailRequest(fdcId);
+            DatabaseHelper mDatabaseHelper = new DatabaseHelper(this);
+            JSONObject response;
+
+            // Check local database for response. If it exists, fetch the response locally
+            if (mDatabaseHelper.detailCheckAlreadyExist(fdcId)) {
+                String databaseResponse = mDatabaseHelper.detailGetData(fdcId);
+                response = new JSONObject(databaseResponse); // Responses are converted to JSONObjects so they can be parsed
+            }
+            // Else the response is fetched and saved locally
+            else {
+                // Check for internet connectivity
+                InternetCheck internetCheck = new InternetCheck();
+                if (!internetCheck.isOnline()) {
+                    Context context = getApplicationContext();
+                    CharSequence text = "Internet connection not detected.";
+                    int duration = Toast.LENGTH_LONG;
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                    finish();
+                }
+
+                APIRequestActivity inst1 = new APIRequestActivity();
+                response = inst1.detailRequest(fdcId);
+                String databaseString = response.toString();
+                mDatabaseHelper.detailAddData(fdcId, databaseString);
+            }
 
             JSONObject foodPortion;
             JSONObject nutrient;
