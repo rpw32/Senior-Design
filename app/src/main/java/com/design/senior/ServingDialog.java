@@ -36,7 +36,14 @@ public class ServingDialog extends AppCompatDialogFragment {
 
         // Combine each description and weight into one string
         for (int i = 0; i < portionDescriptions.size(); i++) {
-            String portionFormat = portionDescriptions.get(i) + " (" + portionWeights.get(i) + " g)";
+            String portionFormat;
+            // If the portion description is "Quantity not specified", break and move to the next portion
+            if (portionDescriptions.get(i).equals("Quantity not specified")) {
+                continue;
+            }
+            else {
+                portionFormat = portionDescriptions.get(i) + " (" + portionWeights.get(i) + " g)";
+            }
             portionDisplayed.add(portionFormat);
         }
 
