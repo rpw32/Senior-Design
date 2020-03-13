@@ -2,4 +2,8 @@
     <string name="app_name">Senior Design</string>
     <string name="enter_phone_number">Enter Phone Number</string>
     <string name="register">Register</string>
+    <string name="ex_111_222_3333">ex. 111-222-3333</string>
+    <string name="continue_text">Continue</string>
+    <string name="enter_code">Enter Code</string>
+    <string name="please_enter_the_code_we_just_sent_you">Please enter the code we just sent you</string>
 </resources>
