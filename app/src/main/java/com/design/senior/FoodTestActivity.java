@@ -111,6 +111,10 @@ public class FoodTestActivity {
         DecimalFormat df = new DecimalFormat("#.##"); // Formats data when printing
         df.setRoundingMode(RoundingMode.CEILING);
 
+        if(ingredients == null) { // Some foods don't have ingredients lists. This gives them a default empty string
+            ingredients = "";
+        }
+
         String testResult = "";
         Integer testRating = -1;
 
@@ -158,6 +162,10 @@ public class FoodTestActivity {
     public Pair<String, Integer> sodiumContent(double calories, double sodium, String category) throws IOException {
         DecimalFormat df = new DecimalFormat("#.##"); // Used to format data when printing
         df.setRoundingMode(RoundingMode.CEILING);
+
+        if (category == null) {
+            category = "";
+        }
 
         String testResult = "";
         Integer testRating = -1;
