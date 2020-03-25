@@ -25,8 +25,12 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+import org.javatuples.Pair;
+
+
+
 public class DetailResultActivity extends AppCompatActivity implements ServingDialog.ServingDialogListener {
-    private TextView textView;
+    private TextView textView, textViewL, textViewR;
     private ScrollView scrollView;
     private TableLayout detailTable;
     private Double servingSelection;
@@ -543,19 +547,46 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             rowNumber++;
 
 
-            // Calorie Density test
+            // Nutrition Tests
             FoodTestActivity test1 = new FoodTestActivity();
-            String calorieDensity = test1.calorieDensity(food1.calories, food1.servingSize);
+            Pair<String, Integer> calorieDensity = test1.calorieDensity(food1.calories, food1.servingSize);
+            Pair<String, Integer> totalFatComp = test1.totalFat(food1.calories, food1.fat);
+            Pair<String, Integer> satFatComp = test1.saturatedFat(food1.calories,food1.saturatedFat);
+            Pair<String, Integer> transFat = test1.transFat(food1.transFat, food1.ingredients);
+            Pair<String, Integer> sodium = test1.sodiumContent(food1.calories, food1.sodium, food1.brandedFoodCategory);
+            Pair<String, Integer> cholesterol = test1.cholesterolContent(food1.cholesterol,food1.ingredients);
+            Pair<String, Integer> fiber = test1.fiberContent(food1.calories,food1.fiber);
 
+            // Calorie Density
             row = new TableRow(this);
             row.setLayoutParams(lp);
-            textView = new TextView(this);
-            textView.setTextColor(Color.parseColor("#000000"));
-            textView.setLayoutParams(textParams);
+            textViewL = new TextView(this);
+            textViewR = new TextView(this);
+            textViewL.setTextColor(Color.parseColor("#000000"));
+            textViewR.setTextColor(Color.parseColor("#000000"));
+            textViewL.setLayoutParams(textParams);
+            textViewL.setLayoutParams(textParams);
             textView.append("\n\nCalorie Density Test: \n" + calorieDensity);
             row.addView(textView);
             detailTable.addView(row, (rowNumber));
             rowNumber++;
+
+            // Total Fat
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textViewL = new TextView(this);
+            textViewR = new TextView(this);
+            textViewL.setTextColor(Color.parseColor("#000000"));
+            textViewR.setTextColor(Color.parseColor("#000000"));
+            textViewL.setLayoutParams(textParams);
+            textViewL.setLayoutParams(textParams);
+            textViewL.append("\nTotal Fat Test: \nRating: ");
+            textViewR.append("\n" + totalFatComp.getValue0() + "\n" + testRatingDecode(totalFatComp.getValue1()));
+            row.addView(textViewL);
+            row.addView(textViewR);
+            detailTable.addView(row, (rowNumber));
+            rowNumber++;
+
 
 
             // Dialog box to get serving size from the user
@@ -578,6 +609,19 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             e.printStackTrace();
         }
 
+    }
+
+    // Decodes integer rating value given by nutrition test methods
+    private String testRatingDecode(Integer rating) {
+
+        String result = "";
+        if(rating == 2)
+            result = "Best";
+        if(rating == 1)
+            result = "Acceptable";
+        if(rating == 0)
+            result = "Bad";
+        return result;
     }
 
     // Creates the servingDialog
