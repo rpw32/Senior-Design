@@ -25,15 +25,15 @@ public class FoodTestActivity {
         double density = calories / servingSize;
 
         if (density <= 1) {
-            testResult = "Calorie density is: " + df.format(density);
+            testResult = "Calorie Density is: " + df.format(density) + " cal/serving";
             testRating = 2;
         }
         else if ((density > 1) & (density <= 1.5)) {
-            testResult = "Calorie density is: " + df.format(density);
+            testResult = "Calorie Density is: " + df.format(density) + " cal/serving";
             testRating = 1;
         }
         else {
-            testResult = "Calorie density is: " + df.format(density);
+            testResult = "Calorie Density is: " + df.format(density) + " cal/serving";
             testRating = 0;
         }
         if((testRating == -1) | (testResult.isEmpty())){
@@ -56,15 +56,15 @@ public class FoodTestActivity {
 
         }
         else if((fatComp <= .15) & (fatComp >= 0.0)) {
-            testResult = "Total Fat Composition is: " + df.format(fatCompPerc);
+            testResult = "Total Fat Composition is: " + df.format(fatCompPerc) + "%. This is a good choice.";
             testRating = 2;
         }
         else if((fatComp > .15) & (fatComp <= .2)){
-            testResult = "Total Fat Composition is: " + df.format(fatCompPerc);
+            testResult = "Total Fat Composition is: " + df.format(fatCompPerc) + "%. This is between 15% and 20%. This is an acceptable choice.";
             testRating = 1;
         }
         else {
-            testResult = "Total Fat Composition is: " + df.format(fatCompPerc);
+            testResult = "Total Fat Composition is: " + df.format(fatCompPerc) + "%. This is above 20%, which may not be a good choice.";
             testRating = 0;
         }
         if((testRating == -1) | (testResult.isEmpty())){
@@ -164,19 +164,19 @@ public class FoodTestActivity {
         double sodiumToCaloriesRatio = sodium/calories;
 
         if(sodiumToCaloriesRatio <= 1.0){
-            testResult = "Sodium to Calorie Ratio: " + df.format(sodiumToCaloriesRatio);
+            testResult = "Sodium to Calorie Ratio: " + df.format(sodiumToCaloriesRatio) + " mg/cal";
             testRating = 2;
         }
         else if((sodiumToCaloriesRatio >= 1.0) & (sodiumToCaloriesRatio <= 4.0) & (category.contains("condiment"))){
-            testResult = "Sodium to Calorie Ratio: " + df.format(sodiumToCaloriesRatio);
+            testResult = "Sodium to Calorie Ratio: " + df.format(sodiumToCaloriesRatio) + " mg/cal";
             testRating = 1;
         }
         else if((sodiumToCaloriesRatio >= 1.0) & (sodiumToCaloriesRatio <= 2.0) & (!category.contains("condiment"))){
-            testResult = "Sodium to Calorie Ratio: " + df.format(sodiumToCaloriesRatio);
+            testResult = "Sodium to Calorie Ratio: " + df.format(sodiumToCaloriesRatio) + " mg/cal";
             testRating = 1;
         }
         else if(((sodiumToCaloriesRatio > 2.0) & (!category.contains("condiment"))) | ((sodiumToCaloriesRatio > 4.0) & (category.contains("condiment")))){
-            testResult = "Sodium to Calorie Ratio: " + df.format(sodiumToCaloriesRatio);
+            testResult = "Sodium to Calorie Ratio: " + df.format(sodiumToCaloriesRatio) + " mg/cal";
             testRating = 0;
         }
         if((testRating == -1) | (testResult.isEmpty())){
