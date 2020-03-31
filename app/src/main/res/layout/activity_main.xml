@@ -10,19 +10,19 @@
 
 
     <!--    already scanning with us?-->
-    <!--    <TextView-->
-    <!--        android:id="@+id/textView"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_marginLeft="40dp"-->
-    <!--        android:layout_marginTop="310dp"-->
-    <!--        android:text="Already scanning with us?"-->
-    <!--        android:textColor="#FFF"-->
-    <!--        android:textSize="18dp"-->
-    <!--        app:layout_constraintStart_toStartOf="@+id/imageView"-->
-    <!--        app:layout_constraintTop_toTopOf="@+id/imageView" />-->
+<!--    <TextView-->
+<!--        android:id="@+id/textView"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginLeft="40dp"-->
+<!--        android:layout_marginTop="310dp"-->
+<!--        android:text="Already scanning with us?"-->
+<!--        android:textColor="#FFF"-->
+<!--        android:textSize="18dp"-->
+<!--        app:layout_constraintStart_toStartOf="@+id/imageView"-->
+<!--        app:layout_constraintTop_toTopOf="@+id/imageView" />-->
 
-    <!--    background color-->
+<!--    background color-->
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="0dp"
@@ -35,7 +35,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
 
-    <!--    welcome text-->
+<!--    welcome text-->
 
 
     <!--    Sign in Button-->
@@ -71,7 +71,7 @@
         app:layout_constraintTop_toBottomOf="@+id/button"
         app:layout_constraintVertical_bias="0.16" />
 
-    <!--    scan button-->
+<!--    scan button-->
     <Button
         android:id="@+id/button"
         android:layout_width="wrap_content"
@@ -91,7 +91,7 @@
         app:layout_constraintTop_toBottomOf="@+id/button2"
         app:layout_constraintVertical_bias="0.12" />
 
-    <!--    search button-->
+<!--    search button-->
     <Button
         android:id="@+id/button2"
         android:layout_width="wrap_content"
@@ -120,7 +120,7 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="20dp" />
 
-    <!--    curious about a foods..-->
+<!--    curious about a foods..-->
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
