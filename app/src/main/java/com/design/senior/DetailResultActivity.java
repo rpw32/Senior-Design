@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.text.Spannable;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ScrollView;
@@ -27,13 +28,13 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import org.javatuples.Pair;
-
+import org.w3c.dom.Text;
 
 
 public class DetailResultActivity extends AppCompatActivity implements ServingDialog.ServingDialogListener {
-    private TextView textView, textViewL, textViewR;
+    private TextView textView, textViewL, textViewR, title;
     private ScrollView scrollView;
-    private TableLayout detailTable;
+    private TableLayout detailTable, testTable;
     private Double servingSelection;
     private int fdcId;
 
@@ -44,6 +45,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
 
         scrollView = (ScrollView) findViewById(R.id.scrollView);
         detailTable = (TableLayout) findViewById(R.id.detailTable);
+        testTable = (TableLayout) findViewById(R.id.testTable);
+        title = (TextView) findViewById(R.id.title);
 
         // servingSelection is restored if the screen was rotated
         if (savedInstanceState != null) {
@@ -302,23 +305,11 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT); // Set parameters for the searchTable rows, so they wrap to content
             TableRow.LayoutParams textParams = new TableRow.LayoutParams(0, TableLayout.LayoutParams.WRAP_CONTENT, 1f); // Set parameters for the textView
 
-            Integer rowNumber = 0;
-
             // Begin printing to detail page
-            TableRow row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textView = new TextView(this);
-            textView.setTextColor(Color.parseColor("#000000"));
-            textView.setLayoutParams(textParams);
-            textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-            textView.setTextSize(24);
-            textView.append(food1.description);
-            row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
-
+            title.setText(food1.description);
+            
             // Printing Macros / Micros
-            row = new TableRow(this);
+            TableRow row = new TableRow(this);
             row.setLayoutParams(lp);
             textView = new TextView(this);
             textView.setTextColor(Color.parseColor("#000000"));
@@ -328,18 +319,18 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.append("Serving size: " + df.format(food1.servingSize) + " " + food1.servingSizeUnit + "\n");
             textView.append("Portion description: " + food1.householdServingFullText);
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            detailTable.addView(row);
+            
 
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textView = new TextView(this);
             textView.setTextColor(Color.parseColor("#000000"));
             textView.setLayoutParams(textParams);
-            textView.append("Calories: " + df.format(food1.calories));
+            textView.append("Calories: " + df.format(food1.calories) + " kcal");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            detailTable.addView(row);
+            
 
             row = new TableRow(this);
             row.setLayoutParams(lp);
@@ -348,8 +339,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setLayoutParams(textParams);
             textView.append("Fat: " + df.format(food1.fat) + " g");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            detailTable.addView(row);
+            
 
             row = new TableRow(this);
             row.setLayoutParams(lp);
@@ -358,8 +349,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setLayoutParams(textParams);
             textView.append("Saturated Fat: " + df.format(food1.saturatedFat) + " g");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            detailTable.addView(row);
+            
 
             row = new TableRow(this);
             row.setLayoutParams(lp);
@@ -368,8 +359,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setLayoutParams(textParams);
             textView.append("Trans Fat: " + df.format(food1.transFat) + " g");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            detailTable.addView(row);
+            
 
             row = new TableRow(this);
             row.setLayoutParams(lp);
@@ -378,8 +369,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setLayoutParams(textParams);
             textView.append("Cholesterol: " + df.format(food1.cholesterol) + " mg");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            detailTable.addView(row);
+            
 
             row = new TableRow(this);
             row.setLayoutParams(lp);
@@ -388,8 +379,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setLayoutParams(textParams);
             textView.append("Sodium: " + df.format(food1.sodium) + " mg");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            detailTable.addView(row);
+            
 
             row = new TableRow(this);
             row.setLayoutParams(lp);
@@ -398,8 +389,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setLayoutParams(textParams);
             textView.append("Carbohydrates: " + df.format(food1.carbohydrates) + " g");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            detailTable.addView(row);
+            
 
             row = new TableRow(this);
             row.setLayoutParams(lp);
@@ -408,8 +399,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setLayoutParams(textParams);
             textView.append("Fiber: " + df.format(food1.fiber) + " g");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            detailTable.addView(row);
+            
 
             row = new TableRow(this);
             row.setLayoutParams(lp);
@@ -418,8 +409,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setLayoutParams(textParams);
             textView.append("Sugars: " + df.format(food1.sugars) + " g");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            detailTable.addView(row);
+            
 
             row = new TableRow(this);
             row.setLayoutParams(lp);
@@ -428,8 +419,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setLayoutParams(textParams);
             textView.append("Protein: " + df.format(food1.protein) + " g");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            detailTable.addView(row);
+            
 
             row = new TableRow(this);
             row.setLayoutParams(lp);
@@ -438,8 +429,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setLayoutParams(textParams);
             textView.append("Vitamin D: " + df.format(food1.vitaminD) + " IU");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            detailTable.addView(row);
+            
 
             row = new TableRow(this);
             row.setLayoutParams(lp);
@@ -448,8 +439,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setLayoutParams(textParams);
             textView.append("Calcium: " + df.format(food1.calcium) + " mg");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            detailTable.addView(row);
+            
 
             row = new TableRow(this);
             row.setLayoutParams(lp);
@@ -458,8 +449,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setLayoutParams(textParams);
             textView.append("Iron: " + df.format(food1.iron) + " mg");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            detailTable.addView(row);
+            
 
             row = new TableRow(this);
             row.setLayoutParams(lp);
@@ -468,8 +459,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setLayoutParams(textParams);
             textView.append("Potassium: " + df.format(food1.potassium) + " mg");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            detailTable.addView(row);
+            
 
             row = new TableRow(this);
             row.setLayoutParams(lp);
@@ -478,8 +469,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setLayoutParams(textParams);
             textView.append("Vitamin A: " + df.format(food1.vitaminA) + " IU");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            detailTable.addView(row);
+            
 
             row = new TableRow(this);
             row.setLayoutParams(lp);
@@ -488,21 +479,23 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setLayoutParams(textParams);
             textView.append("Vitamin C: " + df.format(food1.vitaminC) + " IU");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            detailTable.addView(row);
+            
 
 
             // Only foods from the Branded database have this information
             if (food1.foodClass.equals("Branded")) {
                 row = new TableRow(this);
                 row.setLayoutParams(lp);
-                textView = new TextView(this);
+                Spannable.Factory spannableFactory;
+                spannableFactory = Spannable.Factory.getInstance();
+                textView = new ExpandableTextView(this);
                 textView.setTextColor(Color.parseColor("#000000"));
                 textView.setLayoutParams(textParams);
-                textView.append("Ingredients: " + food1.ingredients);
+                textView.setText("Ingredients: " + food1.ingredients);
                 row.addView(textView);
-                detailTable.addView(row, (rowNumber));
-                rowNumber++;
+                detailTable.addView(row);
+                
 
                 row = new TableRow(this);
                 row.setLayoutParams(lp);
@@ -511,8 +504,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
                 textView.setLayoutParams(textParams);
                 textView.append("Brand Owner: " + food1.brandOwner);
                 row.addView(textView);
-                detailTable.addView(row, (rowNumber));
-                rowNumber++;
+                detailTable.addView(row);
+                
 
                 row = new TableRow(this);
                 row.setLayoutParams(lp);
@@ -521,32 +514,31 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
                 textView.setLayoutParams(textParams);
                 textView.append("Food Category: " + food1.brandedFoodCategory);
                 row.addView(textView);
-                detailTable.addView(row, (rowNumber));
-                rowNumber++;
+                detailTable.addView(row);
+                
 
-                row = new TableRow(this);
-                row.setLayoutParams(lp);
-                textView = new TextView(this);
-                textView.setTextColor(Color.parseColor("#000000"));
-                textView.setLayoutParams(textParams);
-                textView.append("Universal Product Code: " + food1.gtinUpc);
-                row.addView(textView);
-                detailTable.addView(row, (rowNumber));
-                rowNumber++;
+//                row = new TableRow(this);
+//                row.setLayoutParams(lp);
+//                textView = new TextView(this);
+//                textView.setTextColor(Color.parseColor("#000000"));
+//                textView.setLayoutParams(textParams);
+//                textView.append("Universal Product Code: " + food1.gtinUpc);
+//                row.addView(textView);
+//                detailTable.addView(row);
+//                
 
             }
 
             // Not necessary to print, but can be handy
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textView = new TextView(this);
-            textView.setTextColor(Color.parseColor("#000000"));
-            textView.setLayoutParams(textParams);
-            textView.append("Food Data Central ID: " + food1.fdcId);
-            row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
-
+//            row = new TableRow(this);
+//            row.setLayoutParams(lp);
+//            textView = new TextView(this);
+//            textView.setTextColor(Color.parseColor("#000000"));
+//            textView.setLayoutParams(textParams);
+//            textView.append("Food Data Central ID: " + food1.fdcId);
+//            row.addView(textView);
+//            detailTable.addView(row);
+//            
 
             // Nutrition Tests
             FoodTestActivity test1 = new FoodTestActivity();
@@ -567,8 +559,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setTypeface(Typeface.DEFAULT_BOLD);
             textView.append("\nCalorie Density Test");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            testTable.addView(row);
+            
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textView = new TextView(this);
@@ -576,8 +568,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setLayoutParams(textParams);
             textView.append(calorieDensity.getValue0());
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            testTable.addView(row);
+            
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textViewL = new TextView(this);
@@ -590,8 +582,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textViewR.append(testRatingDecode(calorieDensity.getValue1()));
             row.addView(textViewL);
             row.addView(textViewR);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            testTable.addView(row);
+            
 
 
             // Total Fat
@@ -603,8 +595,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setTypeface(Typeface.DEFAULT_BOLD);
             textView.append("\nTotal Fat Test");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            testTable.addView(row);
+            
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textView = new TextView(this);
@@ -612,8 +604,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setLayoutParams(textParams);
             textView.append(totalFatComp.getValue0());
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            testTable.addView(row);
+            
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textViewL = new TextView(this);
@@ -626,8 +618,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textViewR.append(testRatingDecode(totalFatComp.getValue1()));
             row.addView(textViewL);
             row.addView(textViewR);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            testTable.addView(row);
+            
 
             // Saturated Fat
             row = new TableRow(this);
@@ -638,8 +630,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setTypeface(Typeface.DEFAULT_BOLD);
             textView.append("\nSaturated Fat Test");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            testTable.addView(row);
+            
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textView = new TextView(this);
@@ -647,8 +639,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setLayoutParams(textParams);
             textView.append(satFatComp.getValue0());
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            testTable.addView(row);
+            
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textViewL = new TextView(this);
@@ -661,8 +653,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textViewR.append(testRatingDecode(satFatComp.getValue1()));
             row.addView(textViewL);
             row.addView(textViewR);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            testTable.addView(row);
+            
 
             // Trans Fat
             row = new TableRow(this);
@@ -673,8 +665,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setTypeface(Typeface.DEFAULT_BOLD);
             textView.append("\nTrans Fat Test");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            testTable.addView(row);
+            
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textView = new TextView(this);
@@ -682,8 +674,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setLayoutParams(textParams);
             textView.append(transFat.getValue0());
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            testTable.addView(row);
+            
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textViewL = new TextView(this);
@@ -696,8 +688,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textViewR.append(testRatingDecode(transFat.getValue1()));
             row.addView(textViewL);
             row.addView(textViewR);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            testTable.addView(row);
+            
 
             // Sodium
             row = new TableRow(this);
@@ -708,8 +700,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setTypeface(Typeface.DEFAULT_BOLD);
             textView.append("\nSodium Test");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            testTable.addView(row);
+            
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textView = new TextView(this);
@@ -717,8 +709,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setLayoutParams(textParams);
             textView.append(sodium.getValue0());
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            testTable.addView(row);
+            
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textViewL = new TextView(this);
@@ -731,8 +723,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textViewR.append(testRatingDecode(sodium.getValue1()));
             row.addView(textViewL);
             row.addView(textViewR);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            testTable.addView(row);
+            
 
             // Cholesterol
             row = new TableRow(this);
@@ -743,8 +735,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setTypeface(Typeface.DEFAULT_BOLD);
             textView.append("\nCholesterol Test");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            testTable.addView(row);
+            
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textView = new TextView(this);
@@ -752,8 +744,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setLayoutParams(textParams);
             textView.append(cholesterol.getValue0());
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            testTable.addView(row);
+            
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textViewL = new TextView(this);
@@ -766,8 +758,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textViewR.append(testRatingDecode(cholesterol.getValue1()));
             row.addView(textViewL);
             row.addView(textViewR);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            testTable.addView(row);
+            
 
             // Fiber
             row = new TableRow(this);
@@ -778,8 +770,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setTypeface(Typeface.DEFAULT_BOLD);
             textView.append("\nFiber Test");
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            testTable.addView(row);
+            
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textView = new TextView(this);
@@ -787,8 +779,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.setLayoutParams(textParams);
             textView.append(fiber.getValue0());
             row.addView(textView);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            testTable.addView(row);
+            
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textViewL = new TextView(this);
@@ -801,8 +793,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textViewR.append(testRatingDecode(fiber.getValue1()));
             row.addView(textViewL);
             row.addView(textViewR);
-            detailTable.addView(row, (rowNumber));
-            rowNumber++;
+            testTable.addView(row);
+            
 
 
             // Dialog box to get serving size from the user
