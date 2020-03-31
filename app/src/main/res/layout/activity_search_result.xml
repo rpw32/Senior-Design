@@ -2,10 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/relativeLayout2"
+    android:id="@+id/relativeLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    tools:context=".activity_search_result">
 
     <ImageView
         android:id="@+id/imageView"
@@ -19,24 +19,54 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <EditText
-        android:id="@+id/numServings"
-        android:layout_width="match_parent"
+        android:id="@+id/searchInput"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="numberDecimal"
+        android:ems="10"
+        android:hint="Search for a food..."
+        android:imeOptions="actionSend"
+        android:inputType="text"
+        android:textColorHint="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.368"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.275" />
+        app:layout_constraintVertical_bias="0.144" />
 
-    <Spinner
-        android:id="@+id/portionSpinner"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/searchButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@drawable/buttonshape"
+        android:shadowColor="#A8A8A8"
+        android:shadowDx="0"
+        android:shadowDy="0"
+        android:shadowRadius="5"
+        android:text="Search"
+        android:textColor="#FFFFFF"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/searchInput"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/searchInput" />
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="383dp"
+        android:layout_height="574dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/numServings"
-        app:layout_constraintVertical_bias="0.04" />
+        app:layout_constraintTop_toBottomOf="@+id/searchInput">
 
+        <TableLayout
+            android:id="@+id/searchTable"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:clickable="false" />
+
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
