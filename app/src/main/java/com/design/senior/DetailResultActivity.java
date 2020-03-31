@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -164,6 +165,7 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
         try {
             scrollView.scrollTo(0, 0); // Reset scrollView position to the top
             detailTable.removeAllViews(); // Reset table, make sure its empty before populating it again
+            testTable.removeAllViews();
 
             FoodInformation food1 = new FoodInformation();
             DatabaseHelper mDatabaseHelper = new DatabaseHelper(this);
@@ -554,7 +556,7 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textView = new TextView(this);
-            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
             textView.setLayoutParams(textParams);
             textView.setTypeface(Typeface.DEFAULT_BOLD);
             textView.append("\nCalorie Density Test");
@@ -590,7 +592,7 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textView = new TextView(this);
-            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
             textView.setLayoutParams(textParams);
             textView.setTypeface(Typeface.DEFAULT_BOLD);
             textView.append("\nTotal Fat Test");
@@ -625,7 +627,7 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textView = new TextView(this);
-            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
             textView.setLayoutParams(textParams);
             textView.setTypeface(Typeface.DEFAULT_BOLD);
             textView.append("\nSaturated Fat Test");
@@ -660,7 +662,7 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textView = new TextView(this);
-            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
             textView.setLayoutParams(textParams);
             textView.setTypeface(Typeface.DEFAULT_BOLD);
             textView.append("\nTrans Fat Test");
@@ -695,7 +697,7 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textView = new TextView(this);
-            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
             textView.setLayoutParams(textParams);
             textView.setTypeface(Typeface.DEFAULT_BOLD);
             textView.append("\nSodium Test");
@@ -730,7 +732,7 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textView = new TextView(this);
-            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
             textView.setLayoutParams(textParams);
             textView.setTypeface(Typeface.DEFAULT_BOLD);
             textView.append("\nCholesterol Test");
@@ -765,7 +767,7 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textView = new TextView(this);
-            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
             textView.setLayoutParams(textParams);
             textView.setTypeface(Typeface.DEFAULT_BOLD);
             textView.append("\nFiber Test");
