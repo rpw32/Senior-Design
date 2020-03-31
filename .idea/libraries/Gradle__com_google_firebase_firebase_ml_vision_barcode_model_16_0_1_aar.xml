@@ -1,8 +1,8 @@
 <component name="libraryTable">
   <library name="Gradle: com.google.firebase:firebase-ml-vision-barcode-model:16.0.1@aar">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/3ca4b2881a6555cd64837aab8daed4cf/jetified-firebase-ml-vision-barcode-model-16.0.1/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/3ca4b2881a6555cd64837aab8daed4cf/jetified-firebase-ml-vision-barcode-model-16.0.1/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/aa11f78ee3caf25e60d2c173829973c2/jetified-firebase-ml-vision-barcode-model-16.0.1/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/aa11f78ee3caf25e60d2c173829973c2/jetified-firebase-ml-vision-barcode-model-16.0.1/res" />
     </CLASSES>
     <JAVADOC>
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.firebase/firebase-ml-vision-barcode-model/16.0.1/7b2b904a57fae0b77a9d2faf5284e6788f3223ba/firebase-ml-vision-barcode-model-16.0.1-javadoc.jar!/" />

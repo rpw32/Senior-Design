@@ -199,6 +199,7 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             JSONObject nutrient;
             JSONObject loopFoodNutrient;
             JSONArray foodNutrients;
+            Double defaultServing = 0.00;
 
             // Portion weights and descriptions are stored in lists
             ArrayList<String> portionWeights = new ArrayList<>();
@@ -217,6 +218,7 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
                 food1.brandOwner = response.getString("brandOwner");
                 food1.gtinUpc = response.getString("gtinUpc");
                 food1.ingredients = response.getString("ingredients");
+                defaultServing = response.getDouble("servingSize");
                 if (servingSelection == null)
                     food1.servingSize = response.getDouble("servingSize");
                 else
@@ -801,6 +803,7 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
 
             // Dialog box to get serving size from the user
             textView = findViewById(servingViewId);
+            Double finalDefaultServing = defaultServing;
             textView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -808,8 +811,7 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
                     if (food1.foodClass.equals("Branded")) {
                         portionWeights.clear();
                         portionDescriptions.clear();
-                        Double portionWeight = food1.servingSize;
-                        portionWeights.add(portionWeight.toString());
+                        portionWeights.add(finalDefaultServing.toString());
                         portionDescriptions.add(food1.householdServingFullText);
                     }
                     servingDialog(portionWeights, portionDescriptions);
