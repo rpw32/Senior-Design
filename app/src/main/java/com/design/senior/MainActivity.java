@@ -13,14 +13,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
 
-
     public void openCamera(View view){
     Intent intent = new Intent(this, CameraMainActivity.class);
     startActivity(intent);
     }
 
     public void openSearch(View view) {
-    Intent intent = new Intent(this, activity_search_result.class);
+    Intent intent = new Intent(this, SearchResultActivity.class);
     startActivity(intent);
     }
 

@@ -1,6 +1,6 @@
 package com.design.senior;
 
-import android.app.ActionBar;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -9,12 +9,15 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.json.JSONArray;
@@ -22,11 +25,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.Iterator;
 
-public class activity_search_result extends AppCompatActivity {
+public class SearchResultActivity extends AppCompatActivity {
 
     int pageNumber = 1; // Search page defaults at 1
+    final boolean[] processClick = {true}; // Boolean variable is used to prevent multiple button presses
+    int position[] = {0, 0}; // Used to restore scroll position if screen is rotated
     String search;
     EditText searchInput;
     Button searchButton;
@@ -43,6 +47,13 @@ public class activity_search_result extends AppCompatActivity {
         searchButton = (Button) findViewById(R.id.searchButton);
         searchTable = (TableLayout) findViewById(R.id.searchTable);
         scrollView = (ScrollView) findViewById(R.id.scrollView);
+
+        // If upcTitle is bundled, it is set as the searchInput text
+        Intent intent = getIntent();
+        String upcTitle = intent.getStringExtra("upcTitle");
+        if (upcTitle != null) {
+            searchInput.setText(upcTitle);
+        }
 
         // If the user hits enter on the keyboard, it is treated as a click for the "Submit" button
         searchInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -61,13 +72,20 @@ public class activity_search_result extends AppCompatActivity {
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (searchInput.getText().toString().isEmpty()) {
-                    Toast.makeText(getApplicationContext(), "Enter a search term", Toast.LENGTH_SHORT).show();
-                }
-                else {
-                    search = searchInput.getText().toString(); // User input is stored to search string
-                    pageNumber = 1; // Reset pageNumber to 1 when Search button is pressed
-                    searchParse();
+                // When processClick[0] is true, the button can be pressed
+                if (processClick[0]) {
+                    // Check if input field is populated
+                    if (searchInput.getText().toString().isEmpty()) {
+                        Toast.makeText(getApplicationContext(), "Enter a search term", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Button is disabled until searchParse() is finished running
+                        processClick[0] = false;
+                        searchButton.setEnabled(false);
+                        searchButton.setClickable(false);
+                        search = searchInput.getText().toString(); // User input is stored to search string
+                        pageNumber = 1; // Reset pageNumber to 1 when Search button is pressed
+                        searchParse();
+                    }
                 }
             }
         });
@@ -77,17 +95,45 @@ public class activity_search_result extends AppCompatActivity {
     private void searchParse() { // Parse the API Search response
 
         try {
-            scrollView.scrollTo(0, 0); // Reset scrollView position to the top
+            // scrollView defaults to 0
+            if (position[0] == 0) {
+                scrollView.scrollTo(0, 0); // Reset scrollView position to the top
+            }
+
             searchTable.removeAllViews(); // Reset table, make sure its empty before populating it again
 
-            APIRequestActivity inst1 = new APIRequestActivity();
-
+            DatabaseHelper mDatabaseHelper = new DatabaseHelper(this);
             JSONObject response;
-            response = inst1.searchRequest(search, "", "true", String.valueOf(pageNumber), "", "");
+
+            // Check local database for response. If it exists, fetch the response locally
+            if (mDatabaseHelper.searchCheckAlreadyExist(search)) {
+                String databaseResponse = mDatabaseHelper.searchGetData(search);
+                response = new JSONObject(databaseResponse); // Responses are converted to JSONObjects so they can be parsed
+            }
+            // Else, the response is fetched and saved locally
+            else {
+                // Check for internet connectivity
+                InternetCheck internetCheck = new InternetCheck();
+                // If there is no internet, searchParse() is not called
+                if (!internetCheck.isOnline()) {
+                    Context context = getApplicationContext();
+                    CharSequence text = "Internet connection not detected.";
+                    int duration = Toast.LENGTH_LONG;
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                    return;
+                }
+                else {
+                    APIRequestActivity inst1 = new APIRequestActivity();
+                    response = inst1.searchRequest(search, "", "true", String.valueOf(pageNumber), "", "");
+                    String databaseString = response.toString();
+                    mDatabaseHelper.searchAddData(search, databaseString);
+                }
+            }
 
             // Search result stats always located at the top
             String totalHits = response.getString("totalHits");
-            String currentPage = response.getString("currentPage");
+            String currentPage = String.valueOf(pageNumber);
             String totalPages = response.getString("totalPages");
             JSONArray foodsArray = response.getJSONArray("foods");
 
@@ -146,8 +192,8 @@ public class activity_search_result extends AppCompatActivity {
                 }
 
                 // Print result, fdcId, and description
-                textView.append("Result: " + resultNumber + "\n");
-                textView.append("FDC ID: " + fdcId + "\n");
+                textView.append("\nResult: " + resultNumber + "\n");
+                //textView.append("FDC ID: " + fdcId + "\n");
                 textView.append("Description: " + description + "\n");
 
                 // Check to make sure it isn't null before printing
@@ -155,8 +201,8 @@ public class activity_search_result extends AppCompatActivity {
                     textView.append("Additional Descriptions: " + additionalDescriptions + "\n");
                 }
 
-                textView.append("DataType: " + dataType + "\n");
-                textView.append("Published Date: " + publishedDate + "\n");
+                textView.append("Type: " + dataType + "\n");
+                //textView.append("Published Date: " + publishedDate + "\n");
 
                 // Print Branded exclusive strings
                 if (dataType.equals("Branded")) {
@@ -174,25 +220,25 @@ public class activity_search_result extends AppCompatActivity {
                     @Override
                     public void onClick(View v)
                     {
-                        Intent i = new Intent(activity_search_result.this, activity_detail_result.class);
+                        Intent i = new Intent(SearchResultActivity.this, DetailResultActivity.class);
                         i.putExtra("fdcId", fdcId);
                         startActivity(i);
                     }
                 });
             }
 
-            // Last row is for Previous Page/Next Page buttons
-            TableRow row = new TableRow(this);
-            row.setLayoutParams(lp);
-
             Button prevPage = new Button(this);
-            prevPage.setText("Previous Page");
+            prevPage.setText("Prev Page");
             Button nextPage = new Button(this);
             nextPage.setText("Next Page");
 
-            // Previous Page button is only loaded when the page number is above 1
-            if (Integer.valueOf(currentPage) > 1) {
-                searchTable.addView(prevPage);
+            // If both buttons are to be loaded, they are placed in the same row
+            if (Integer.valueOf(currentPage) > 1 && Integer.valueOf(totalPages) > Integer.valueOf(currentPage)) {
+                TableRow row = new TableRow(this);
+                row.addView(prevPage);
+                row.addView(nextPage);
+                searchTable.addView(row);
+
                 prevPage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -203,11 +249,7 @@ public class activity_search_result extends AppCompatActivity {
                         overridePendingTransition(0, 0);
                     }
                 });
-            }
 
-            // Next Page button is only loaded when the total page number is greater than the current page
-            if (Integer.valueOf(totalPages) > Integer.valueOf(currentPage)) {
-                searchTable.addView(nextPage);
                 nextPage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -219,10 +261,69 @@ public class activity_search_result extends AppCompatActivity {
                     }
                 });
             }
+            // Else, they are loaded one at a time
+            else {
+                // Previous Page button is only loaded when the page number is above 1
+                if (Integer.valueOf(currentPage) > 1) {
+                    searchTable.addView(prevPage);
+                    prevPage.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            pageNumber--;
+                            searchTable.removeAllViews();
+                            overridePendingTransition(0, 0);
+                            searchParse();
+                            overridePendingTransition(0, 0);
+                        }
+                    });
+                }
+
+                // Next Page button is only loaded when the total page number is greater than the current page
+                if (Integer.valueOf(totalPages) > Integer.valueOf(currentPage)) {
+                    searchTable.addView(nextPage);
+                    nextPage.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            pageNumber++;
+                            searchTable.removeAllViews();
+                            overridePendingTransition(0, 0);
+                            searchParse();
+                            overridePendingTransition(0, 0);
+                        }
+                    });
+                }
+            }
+
+            // Reset search button
+            processClick[0] = true;
+            searchButton.setEnabled(true);
+            searchButton.setClickable(true);
+
+            // Scroll is restored if the screen is rotated
+            if (position[0] != 0) {
+                scrollView.scrollTo(position[0], position[1]);
+                position[0] = 0;
+                position[1] = 0;
+            }
 
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
 
+    }
+
+    // When the screen is rotated, the scrollView position is saved
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        position[0] = scrollView.getScrollX();
+        position[1] = scrollView.getScrollY();
+    }
+
+    // After screen rotation, searchParse() is called again
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        searchButton.performClick();
     }
 }
