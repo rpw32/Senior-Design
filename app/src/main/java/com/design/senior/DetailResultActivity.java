@@ -164,6 +164,7 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
         try {
             scrollView.scrollTo(0, 0); // Reset scrollView position to the top
             detailTable.removeAllViews(); // Reset table, make sure its empty before populating it again
+            testTable.removeAllViews();
 
             FoodInformation food1 = new FoodInformation();
             DatabaseHelper mDatabaseHelper = new DatabaseHelper(this);
