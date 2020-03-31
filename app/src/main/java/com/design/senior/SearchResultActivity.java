@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -132,7 +133,7 @@ public class SearchResultActivity extends AppCompatActivity {
 
             // Search result stats always located at the top
             String totalHits = response.getString("totalHits");
-            String currentPage = response.getString("currentPage");
+            String currentPage = String.valueOf(pageNumber);
             String totalPages = response.getString("totalPages");
             JSONArray foodsArray = response.getJSONArray("foods");
 
@@ -191,8 +192,8 @@ public class SearchResultActivity extends AppCompatActivity {
                 }
 
                 // Print result, fdcId, and description
-                textView.append("Result: " + resultNumber + "\n");
-                textView.append("FDC ID: " + fdcId + "\n");
+                textView.append("\nResult: " + resultNumber + "\n");
+                //textView.append("FDC ID: " + fdcId + "\n");
                 textView.append("Description: " + description + "\n");
 
                 // Check to make sure it isn't null before printing
@@ -200,8 +201,8 @@ public class SearchResultActivity extends AppCompatActivity {
                     textView.append("Additional Descriptions: " + additionalDescriptions + "\n");
                 }
 
-                textView.append("DataType: " + dataType + "\n");
-                textView.append("Published Date: " + publishedDate + "\n");
+                textView.append("Type: " + dataType + "\n");
+                //textView.append("Published Date: " + publishedDate + "\n");
 
                 // Print Branded exclusive strings
                 if (dataType.equals("Branded")) {
@@ -226,18 +227,18 @@ public class SearchResultActivity extends AppCompatActivity {
                 });
             }
 
-            // Last row is for Previous Page/Next Page buttons
-            TableRow row = new TableRow(this);
-            row.setLayoutParams(lp);
-
             Button prevPage = new Button(this);
-            prevPage.setText("Previous Page");
+            prevPage.setText("Prev Page");
             Button nextPage = new Button(this);
             nextPage.setText("Next Page");
 
-            // Previous Page button is only loaded when the page number is above 1
-            if (Integer.valueOf(currentPage) > 1) {
-                searchTable.addView(prevPage);
+            // If both buttons are to be loaded, they are placed in the same row
+            if (Integer.valueOf(currentPage) > 1 && Integer.valueOf(totalPages) > Integer.valueOf(currentPage)) {
+                TableRow row = new TableRow(this);
+                row.addView(prevPage);
+                row.addView(nextPage);
+                searchTable.addView(row);
+
                 prevPage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -248,11 +249,7 @@ public class SearchResultActivity extends AppCompatActivity {
                         overridePendingTransition(0, 0);
                     }
                 });
-            }
 
-            // Next Page button is only loaded when the total page number is greater than the current page
-            if (Integer.valueOf(totalPages) > Integer.valueOf(currentPage)) {
-                searchTable.addView(nextPage);
                 nextPage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -263,6 +260,38 @@ public class SearchResultActivity extends AppCompatActivity {
                         overridePendingTransition(0, 0);
                     }
                 });
+            }
+            // Else, they are loaded one at a time
+            else {
+                // Previous Page button is only loaded when the page number is above 1
+                if (Integer.valueOf(currentPage) > 1) {
+                    searchTable.addView(prevPage);
+                    prevPage.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            pageNumber--;
+                            searchTable.removeAllViews();
+                            overridePendingTransition(0, 0);
+                            searchParse();
+                            overridePendingTransition(0, 0);
+                        }
+                    });
+                }
+
+                // Next Page button is only loaded when the total page number is greater than the current page
+                if (Integer.valueOf(totalPages) > Integer.valueOf(currentPage)) {
+                    searchTable.addView(nextPage);
+                    nextPage.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            pageNumber++;
+                            searchTable.removeAllViews();
+                            overridePendingTransition(0, 0);
+                            searchParse();
+                            overridePendingTransition(0, 0);
+                        }
+                    });
+                }
             }
 
             // Reset search button
