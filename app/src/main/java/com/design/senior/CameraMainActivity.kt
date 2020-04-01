@@ -5,7 +5,9 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Matrix
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.util.Log
+import android.util.Size
 import android.view.Surface
 import android.view.TextureView
 import android.view.ViewGroup
@@ -52,8 +54,16 @@ class CameraMainActivity : AppCompatActivity() {
 
     private fun startCamera() {
 
+        val metrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(metrics)
+
+        var width = metrics.widthPixels
+        var height = metrics.heightPixels
+
+
         val config = PreviewConfig.Builder().apply {
             setLensFacing(CameraX.LensFacing.BACK)
+            setTargetResolution(Size(width,height))
         }.build()
         val preview = Preview(config)
 
