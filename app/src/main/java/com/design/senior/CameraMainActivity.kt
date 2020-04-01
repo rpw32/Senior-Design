@@ -1,23 +1,21 @@
 package com.design.senior
 
+import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Matrix
 import android.os.Bundle
+import android.util.Log
 import android.view.Surface
 import android.view.TextureView
 import android.view.ViewGroup
-import android.Manifest
-import android.util.DisplayMetrics
-import android.util.Log
-import android.util.Size
 import android.widget.Toast
-
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
-import androidx.camera.core.ImageAnalysis
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import java.util.concurrent.Executors
+
 
 class CameraMainActivity : AppCompatActivity() {
 
@@ -40,22 +38,22 @@ class CameraMainActivity : AppCompatActivity() {
         textureView.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
             updateTransform()
         }
+
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        flag = 0
     }
 
     private val executor = Executors.newSingleThreadExecutor()
 
     private fun startCamera() {
 
-        val metrics = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(metrics)
-
-        var width = metrics.widthPixels
-        var height = metrics.heightPixels
-
-
         val config = PreviewConfig.Builder().apply {
             setLensFacing(CameraX.LensFacing.BACK)
-            setTargetResolution(Size(width,height))
         }.build()
         val preview = Preview(config)
 
@@ -73,17 +71,49 @@ class CameraMainActivity : AppCompatActivity() {
         }.build()
 
         val analysis = ImageAnalysis(analysisConfig)
+        val intent = Intent(this, DetailResultActivity::class.java)
+
 
         val barCodeAnalyzer = BarCodeScanner { barCodes ->
-            barCodes.forEach {
+            barCodes.forEach() {
                 Log.d("CameraMainActivity", "Barcode Detected: ${it.rawValue}.")
+                setMessage(intent, it.rawValue.toString())
+                startDetail(intent)
+                finish()
             }
         }
+
 
         analysis.setAnalyzer(executor, barCodeAnalyzer)
 
         CameraX.bindToLifecycle(this, preview, analysis)
+
     }
+    var flag = 0
+
+    private fun startDetail(intent: Intent){
+        if(flag == 0)
+        {
+            flag += 1
+            startActivity(intent)
+        }
+
+    }
+
+    companion object{
+        private const val EXTRA_MESSAGE  = ""
+
+        fun getMessage(intent: Intent): String? {
+            return intent.getStringExtra(EXTRA_MESSAGE)
+        }
+
+        fun setMessage(intent: Intent, message: String?){
+            intent.putExtra(EXTRA_MESSAGE, message)
+        }
+
+    }
+
+
     private fun updateTransform(){
 
         // Compute center of preview
@@ -125,4 +155,5 @@ class CameraMainActivity : AppCompatActivity() {
     }
 
     }
+
 
