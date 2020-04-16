@@ -29,6 +29,7 @@ import java.io.IOException;
 public class SearchResultActivity extends AppCompatActivity {
 
     int pageNumber = 1; // Search page defaults at 1
+    int newSearch = 1; // Used to determine if there is a new search query (upon screen rotation)
     final boolean[] processClick = {true}; // Boolean variable is used to prevent multiple button presses
     int position[] = {0, 0}; // Used to restore scroll position if screen is rotated
     String search;
@@ -83,7 +84,6 @@ public class SearchResultActivity extends AppCompatActivity {
                         searchButton.setEnabled(false);
                         searchButton.setClickable(false);
                         search = searchInput.getText().toString(); // User input is stored to search string
-                        pageNumber = 1; // Reset pageNumber to 1 when Search button is pressed
                         searchParse();
                     }
                 }
@@ -100,14 +100,21 @@ public class SearchResultActivity extends AppCompatActivity {
                 scrollView.scrollTo(0, 0); // Reset scrollView position to the top
             }
 
+            if (newSearch == 1) {
+                pageNumber = 1;
+            }
+            else {
+                newSearch = 1; // Reset newSearch for the next time searchParse() is called
+            }
+
             searchTable.removeAllViews(); // Reset table, make sure its empty before populating it again
 
             DatabaseHelper mDatabaseHelper = new DatabaseHelper(this);
             JSONObject response;
 
             // Check local database for response. If it exists, fetch the response locally
-            if (mDatabaseHelper.searchCheckAlreadyExist(search)) {
-                String databaseResponse = mDatabaseHelper.searchGetData(search);
+            if (mDatabaseHelper.searchCheckAlreadyExist(search, pageNumber)) {
+                String databaseResponse = mDatabaseHelper.searchGetData(search, pageNumber);
                 response = new JSONObject(databaseResponse); // Responses are converted to JSONObjects so they can be parsed
             }
             // Else, the response is fetched and saved locally
@@ -127,7 +134,7 @@ public class SearchResultActivity extends AppCompatActivity {
                     APIRequestActivity inst1 = new APIRequestActivity();
                     response = inst1.searchRequest(search, "", "true", String.valueOf(pageNumber), "", "");
                     String databaseString = response.toString();
-                    mDatabaseHelper.searchAddData(search, databaseString);
+                    mDatabaseHelper.searchAddData(search, databaseString, pageNumber);
                 }
             }
 
@@ -243,6 +250,7 @@ public class SearchResultActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         pageNumber--;
+                        newSearch = 0;
                         searchTable.removeAllViews();
                         overridePendingTransition(0, 0);
                         searchParse();
@@ -254,6 +262,7 @@ public class SearchResultActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         pageNumber++;
+                        newSearch = 0;
                         searchTable.removeAllViews();
                         overridePendingTransition(0, 0);
                         searchParse();
@@ -270,6 +279,7 @@ public class SearchResultActivity extends AppCompatActivity {
                         @Override
                         public void onClick(View v) {
                             pageNumber--;
+                            newSearch = 0;
                             searchTable.removeAllViews();
                             overridePendingTransition(0, 0);
                             searchParse();
@@ -285,6 +295,7 @@ public class SearchResultActivity extends AppCompatActivity {
                         @Override
                         public void onClick(View v) {
                             pageNumber++;
+                            newSearch = 0;
                             searchTable.removeAllViews();
                             overridePendingTransition(0, 0);
                             searchParse();
@@ -316,6 +327,7 @@ public class SearchResultActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putInt("pageNumber", pageNumber);
         position[0] = scrollView.getScrollX();
         position[1] = scrollView.getScrollY();
     }
@@ -324,6 +336,8 @@ public class SearchResultActivity extends AppCompatActivity {
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+        pageNumber = savedInstanceState.getInt("pageNumber");
+        newSearch = 0;
         searchButton.performClick();
     }
 }

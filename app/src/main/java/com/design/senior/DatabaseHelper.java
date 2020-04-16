@@ -23,6 +23,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DETAIL_COL1 = "response";
     private static final String SEARCH_COL0 = "searchQuery";
     private static final String SEARCH_COL1 = "response";
+    private static final String SEARCH_COL2 = "pageNumber";
     private static final String UPC_COL0 = "upc";
     private static final String UPC_COL1 = "name";
 
@@ -48,7 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         String createDetailTable = "CREATE TABLE " + DETAIL_TABLE_NAME + " (" + DETAIL_COL0 + " INTEGER," + DETAIL_COL1 + " TEXT)";
-        String createSearchTable = "CREATE TABLE " + SEARCH_TABLE_NAME + " (" + SEARCH_COL0 + " TEXT," + SEARCH_COL1 + " TEXT)";
+        String createSearchTable = "CREATE TABLE " + SEARCH_TABLE_NAME + " (" + SEARCH_COL0 + " TEXT," + SEARCH_COL1 + " TEXT," + SEARCH_COL2 + " INTEGER)";
         String createUpcTable = "CREATE TABLE " + UPC_TABLE_NAME + " (" + UPC_COL0 + " TEXT," + UPC_COL1 + " TEXT)";
 
         db.execSQL(createDetailTable);
@@ -124,10 +125,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Checks if the searchQuery is already located in the search table
-    public boolean searchCheckAlreadyExist(String searchQuery) {
+    public boolean searchCheckAlreadyExist(String searchQuery, int pageNumber) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String selectString = "SELECT * FROM " + SEARCH_TABLE_NAME + " WHERE searchQuery=?";
-        Cursor cursor = db.rawQuery(selectString, new String[] {searchQuery});
+        String selectString = "SELECT * FROM " + SEARCH_TABLE_NAME + " WHERE searchQuery=? AND pageNumber=?";
+        Cursor cursor = db.rawQuery(selectString, new String[] {searchQuery, String.valueOf(pageNumber)});
 
         if (cursor.getCount() > 0) {
             Log.d(TAG, "checkAlreadyExist: " + searchQuery + " is already in " + SEARCH_TABLE_NAME);
@@ -143,11 +144,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Adds searchQuery and response as a row in the search table
-    public boolean searchAddData(String searchQuery, String response) {
+    public boolean searchAddData(String searchQuery, String response, int pageNumber) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(SEARCH_COL0, searchQuery);
         contentValues.put(SEARCH_COL1, response);
+        contentValues.put(SEARCH_COL2, pageNumber);
 
         Log.d(TAG, "addData: Adding " + searchQuery + " to " + SEARCH_TABLE_NAME);
 
@@ -170,10 +172,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Fetch the detail response when given the fdcId
-    public String searchGetData(String searchQuery) {
+    public String searchGetData(String searchQuery, int pageNumber) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String selectString = "SELECT * FROM " + SEARCH_TABLE_NAME + " WHERE searchQuery=?";
-        Cursor cursor = db.rawQuery(selectString, new String[] {searchQuery});
+        String selectString = "SELECT * FROM " + SEARCH_TABLE_NAME + " WHERE searchQuery=? AND pageNumber=?";
+        Cursor cursor = db.rawQuery(selectString, new String[] {searchQuery, String.valueOf(pageNumber)});
         cursor.moveToFirst();
         String response = cursor.getString(1); // Column index 1 is for responses
         cursor.close();
