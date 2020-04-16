@@ -550,6 +550,9 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             Pair<String, Integer> sodium = test1.sodiumContent(food1.calories, food1.sodium, food1.brandedFoodCategory);
             Pair<String, Integer> cholesterol = test1.cholesterolContent(food1.cholesterol, food1.ingredients);
             Pair<String, Integer> fiber = test1.fiberContent(food1.calories, food1.fiber);
+            Pair<String, Integer> flours = test1.flours(food1.ingredients);
+            Pair<String, Integer> sugars = test1.sugars(food1.ingredients);
+
 
             // Calorie Density
             row = new TableRow(this);
@@ -795,7 +798,78 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             row.addView(textViewL);
             row.addView(textViewR);
             testTable.addView(row);
-            
+
+
+            //Flours
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.setTypeface(Typeface.DEFAULT_BOLD);
+            textView.append("\nFlours and Grains Test");
+            row.addView(textView);
+            testTable.addView(row);
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append(flours.getValue0());
+            row.addView(textView);
+            testTable.addView(row);
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textViewL = new TextView(this);
+            textViewR = new TextView(this);
+            textViewL.setTextColor(Color.parseColor("#000000"));
+            textViewR.setTextColor(Color.parseColor("#000000"));
+            textViewL.setLayoutParams(textParams);
+            textViewR.setLayoutParams(textParams);
+            textViewL.append("Rating:");
+            textViewR.append(testRatingDecode(flours.getValue1()));
+            row.addView(textViewL);
+            row.addView(textViewR);
+            testTable.addView(row);
+
+
+            //sugars test
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.setTypeface(Typeface.DEFAULT_BOLD);
+            textView.append("\nSugars Test");
+            row.addView(textView);
+            testTable.addView(row);
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append(sugars.getValue0());
+            row.addView(textView);
+            testTable.addView(row);
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textViewL = new TextView(this);
+            textViewR = new TextView(this);
+            textViewL.setTextColor(Color.parseColor("#000000"));
+            textViewR.setTextColor(Color.parseColor("#000000"));
+            textViewL.setLayoutParams(textParams);
+            textViewR.setLayoutParams(textParams);
+            textViewL.append("Rating:");
+            textViewR.append(testRatingDecode(sugars.getValue1()));
+            row.addView(textViewL);
+            row.addView(textViewR);
+            testTable.addView(row);
 
 
             // Dialog box to get serving size from the user
@@ -830,6 +904,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             result = "Acceptable";
         if(rating == 0)
             result = "Bad";
+        if(rating == 4)
+            result = "NA";
         return result;
     }
 

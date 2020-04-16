@@ -3,6 +3,8 @@ package com.design.senior;
 import java.io.IOException;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.regex.Pattern;
+
 import org.javatuples.Pair;
 
 public class FoodTestActivity {
@@ -219,6 +221,74 @@ public class FoodTestActivity {
             // error: no rating given
         }
         return Pair.with(testResult,testRating);
+    }
+    public Pair<String, Integer> flours(String ingredients){
+        String[] badflours = {"white","wheat","durum", "semolina","bleached", "unbleached"};
+        String[] goodflours = {"whole","rolled","cracked","sprouted","stone ground"};
+        String testResult = "";
+        Integer testRating = -1;
+        Boolean bad = false;
+        Boolean goodf = false;
+
+        for(int i = 0; i<badflours.length; i++){
+            if( Pattern.compile(Pattern.quote(badflours[i]), Pattern.CASE_INSENSITIVE).matcher(ingredients).find()){
+                bad = true;
+            }
+        }
+        for(int j = 0; j<goodflours.length; j++){
+            if(Pattern.compile(Pattern.quote(goodflours[j]), Pattern.CASE_INSENSITIVE).matcher(ingredients).find()){
+                goodf = true;
+            }
+        }
+
+        if(goodf & bad){
+            testRating = 1;
+            testResult = "This food contains good and bad flours";
+        }
+        else if(goodf & !bad) {
+            testRating = 2;
+            testResult = "This food contains good flours or grains";
+        }
+        else if(bad){
+            testRating = 0;
+            testResult = "This food contains bad flours or grains";
+        }
+        else{
+            testRating = 4;
+            testResult = "No flours or grains";
+
+        }
+
+        return Pair.with(testResult,testRating);
+
+    }
+
+    public Pair<String, Integer> sugars(String ingredients){
+        String[] badsug = {"sugar","brown sugar","raw sugar","honey","agave syrup"};
+        String testResult = "";
+        Integer testRating = -1;
+        Boolean bad = false;
+
+        for(int i = 0; i < badsug.length; i++){
+            if(Pattern.compile(Pattern.quote(badsug[i]), Pattern.CASE_INSENSITIVE).matcher(ingredients).find()){
+                bad = true;
+            }
+        }
+        String[] temp_ingr = ingredients.split("\\s+");
+        for(int j = 0; j<temp_ingr.length; j++){
+            if(temp_ingr[j].endsWith("ose") | temp_ingr[j].endsWith("ol"))
+                bad = true;
+        }
+
+        if(bad){
+            testRating = 0;
+            testResult = "This food contains added sugars";
+        }
+        else{
+            testRating = 2;
+            testResult = "This food does not contain added sugars";
+        }
+        return Pair.with(testResult, testRating);
     }
 
 
