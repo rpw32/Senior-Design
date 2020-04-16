@@ -31,13 +31,14 @@
             android:layout_width="110dp"
             android:layout_height="40dp"
             android:inputType="numberDecimal"
-            android:text="1" />
+            android:text="@string/default_num_servings"
+            android:autofillHints="" />
 
         <TextView
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Serving(s) of" />
+            android:text="@string/servings_of" />
 
     </LinearLayout>
 

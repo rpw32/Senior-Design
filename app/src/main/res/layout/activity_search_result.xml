@@ -18,40 +18,42 @@
 <!--        app:layout_constraintTop_toTopOf="parent"-->
 <!--        app:layout_constraintVertical_bias="0.0" />-->
 
-    <EditText
-        android:id="@+id/searchInput"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="63dp"
-        android:layout_marginBottom="18dp"
-        android:ems="10"
-        android:hint="Search for a food"
-        android:inputType="text"
-        android:imeOptions="actionSend"
-        app:layout_constraintBottom_toTopOf="@+id/scrollView"
-        app:layout_constraintEnd_toStartOf="@+id/searchButton"
-        app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <Button
         android:id="@+id/searchButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:text="Search"
-        android:textStyle="bold"
-        android:textColor="#FFFFFF"
-        android:textSize="15sp"
         android:background="@drawable/buttonshape"
         android:shadowColor="#A8A8A8"
         android:shadowDx="0"
         android:shadowDy="0"
         android:shadowRadius="5"
+        android:text="@string/search"
+        android:textColor="#FFFFFF"
+        android:textSize="15sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/searchInput"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/searchInput"
-        app:layout_constraintTop_toTopOf="@+id/searchInput" />
+        app:layout_constraintTop_toTopOf="@+id/searchInput"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <EditText
+        android:id="@+id/searchInput"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="16dp"
+        android:ems="10"
+        android:hint="@string/search_for_a_food"
+        android:imeOptions="actionSend"
+        android:inputType="text"
+        app:layout_constraintBottom_toTopOf="@+id/scrollView"
+        app:layout_constraintEnd_toStartOf="@+id/searchButton"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:autofillHints="" />
 
     <ScrollView
         android:id="@+id/scrollView"
@@ -59,7 +61,6 @@
         android:layout_height="0dp"
         android:layout_marginStart="18dp"
         android:layout_marginEnd="18dp"
-        android:layout_marginBottom="62dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -67,12 +68,12 @@
 
         <TableLayout
             android:id="@+id/searchTable"
-            android:layout_width="350dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clickable="false"
             android:divider="?android:attr/dividerHorizontal"
             android:showDividers="middle"
-            android:stretchColumns="*"
-            android:clickable="false" />
+            android:stretchColumns="*" />
 
     </ScrollView>
 

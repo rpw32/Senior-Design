@@ -27,7 +27,7 @@
         tools:layout_editor_absoluteY="85dp">
 
         <LinearLayout
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:orientation="vertical">
 
@@ -43,15 +43,15 @@
 
             <TableLayout
                 android:id="@+id/detailTable"
-                android:layout_width="350dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:divider="?android:attr/dividerHorizontal"
-                android:showDividers="middle"
-                android:orientation="vertical" />
+                android:orientation="vertical"
+                android:showDividers="middle" />
 
             <TableLayout
                 android:id="@+id/testTable"
-                android:layout_width="350dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
 

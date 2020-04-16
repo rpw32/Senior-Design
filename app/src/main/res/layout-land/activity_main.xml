@@ -39,6 +39,11 @@
 
 
     <!--    Sign in Button-->
+
+    <!--    scan button-->
+
+    <!--    search button-->
+
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
@@ -49,13 +54,10 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.189" />
-
-    <!--    scan button-->
-
-    <!--    search button-->
+        app:layout_constraintVertical_bias="0.092" />
 
     <Button
         android:id="@+id/button2"
@@ -76,7 +78,7 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.612" />
+        app:layout_constraintVertical_bias="0.752" />
 
     <Button
         android:id="@+id/button"
@@ -97,7 +99,7 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button2"
-        app:layout_constraintVertical_bias="0.147" />
+        app:layout_constraintVertical_bias="0.348" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"
@@ -117,6 +119,7 @@
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/button2"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title" />
 

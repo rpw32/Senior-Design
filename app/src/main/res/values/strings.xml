@@ -4,4 +4,10 @@
     <string name="senior_design">Senior Design</string>
     <string name="used_to_take_photo">Used to take photo</string>
     <string name="parse">parse</string>
+    <string name="welcome">Welcome!</string>
+    <string name="search">Search</string>
+    <string name="main_message">Curious about the healthiness of a food? Scan the barcode on the food, or search the foods name!</string>
+    <string name="search_for_a_food">Search for a food</string>
+    <string name="servings_of">Serving(s) of</string>
+    <string name="default_num_servings">1</string>
 </resources>
