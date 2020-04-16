@@ -553,6 +553,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             Pair<String, Integer> sodium = test1.sodiumContent(food1.calories, food1.sodium, food1.brandedFoodCategory);
             Pair<String, Integer> cholesterol = test1.cholesterolContent(food1.cholesterol, food1.ingredients);
             Pair<String, Integer> fiber = test1.fiberContent(food1.calories, food1.fiber);
+            Pair<String, Integer> flour = test1.flours(food1.ingredients);
+            Pair<String, Integer> sugar = test1.sugars(food1.ingredients);
 
             // Calorie Density
             row = new TableRow(this);
@@ -775,7 +777,7 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.append("\nFiber Test");
             row.addView(textView);
             testTable.addView(row);
-            
+
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textView = new TextView(this);
@@ -784,7 +786,7 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             textView.append(fiber.getValue0());
             row.addView(textView);
             testTable.addView(row);
-            
+
             row = new TableRow(this);
             row.setLayoutParams(lp);
             textViewL = new TextView(this);
@@ -798,7 +800,76 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
             row.addView(textViewL);
             row.addView(textViewR);
             testTable.addView(row);
-            
+
+
+            // Flours and Grains
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
+            textView.setLayoutParams(textParams);
+            textView.setTypeface(Typeface.DEFAULT_BOLD);
+            textView.append("\nFlour and Grain Test");
+            row.addView(textView);
+            testTable.addView(row);
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append(flour.getValue0());
+            row.addView(textView);
+            testTable.addView(row);
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textViewL = new TextView(this);
+            textViewR = new TextView(this);
+            textViewL.setTextColor(Color.parseColor("#000000"));
+            textViewR.setTextColor(Color.parseColor("#000000"));
+            textViewL.setLayoutParams(textParams);
+            textViewR.setLayoutParams(textParams);
+            textViewL.append("Rating:");
+            textViewR.append(testRatingDecode(flour.getValue1()));
+            row.addView(textViewL);
+            row.addView(textViewR);
+            testTable.addView(row);
+
+
+            // Added Sugars
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
+            textView.setLayoutParams(textParams);
+            textView.setTypeface(Typeface.DEFAULT_BOLD);
+            textView.append("\nAdded Sugars Test");
+            row.addView(textView);
+            testTable.addView(row);
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textView = new TextView(this);
+            textView.setTextColor(Color.parseColor("#000000"));
+            textView.setLayoutParams(textParams);
+            textView.append(sugar.getValue0());
+            row.addView(textView);
+            testTable.addView(row);
+
+            row = new TableRow(this);
+            row.setLayoutParams(lp);
+            textViewL = new TextView(this);
+            textViewR = new TextView(this);
+            textViewL.setTextColor(Color.parseColor("#000000"));
+            textViewR.setTextColor(Color.parseColor("#000000"));
+            textViewL.setLayoutParams(textParams);
+            textViewR.setLayoutParams(textParams);
+            textViewL.append("Rating:");
+            textViewR.append(testRatingDecode(sugar.getValue1()));
+            row.addView(textViewL);
+            row.addView(textViewR);
+            testTable.addView(row);
 
 
             // Dialog box to get serving size from the user
