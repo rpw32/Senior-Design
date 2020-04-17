@@ -19,13 +19,18 @@
         <activity
             android:name=".CameraMainActivity"
             android:parentActivityName=".MainActivity"></activity>
-        <activity android:name=".SearchResultActivity"></activity>
+        <activity
+            android:name=".SearchResultActivity"
+            android:parentActivityName=".MainActivity"></activity>
         <activity
             android:name=".DetailResultActivity"
             android:parentActivityName=".CameraMainActivity"></activity>
         <activity android:name=".FoodTestActivity"></activity>
         <activity android:name=".APIRequestActivity"></activity>
         <activity android:name=".FoodInformation"></activity>
+        <activity
+            android:name=".TestSettingsActivity"
+            android:parentActivityName=".MainActivity"></activity>
         <activity
             android:name=".ServingDialog"
             android:parentActivityName=".DetailResultActivity"></activity>

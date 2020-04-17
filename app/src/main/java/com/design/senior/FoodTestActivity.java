@@ -1,5 +1,8 @@
 package com.design.senior;
 
+import android.content.Context;
+import android.provider.ContactsContract;
+
 import java.io.IOException;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -18,24 +21,30 @@ public class FoodTestActivity {
     These return Pairs of values, the first being the value of the test and the second being the rating
     2 = Good, 1 = Acceptable, 0 = Bad
      */
-    public Pair<String, Integer> calorieDensity(double calories, double servingSize) throws IOException {
+    public Pair<String, Integer> calorieDensity(double calories, double servingSize, int settingValue) throws IOException {
+        if (settingValue == 0) {
+            return Pair.with("", -1);
+        }
+
         DecimalFormat df = new DecimalFormat("#.##"); // Used to format data when printing
         df.setRoundingMode(RoundingMode.CEILING);
+
+        double testValue = settingValue * 0.02 * 1.25;
 
         String testResult;
         Integer testRating = -1;
         double density = calories / servingSize;
 
-        if (density <= 1) {
-            testResult = "Calorie Density is: " + df.format(density) + " cal/serving";
+        if (density <= (testValue - .25)) {
+            testResult = "Calorie Density: " + df.format(density) + " cal/serving";
             testRating = 2;
         }
-        else if ((density > 1) & (density <= 1.5)) {
-            testResult = "Calorie Density is: " + df.format(density) + " cal/serving";
+        else if ((density > (testValue - .25)) & (density <= (testValue + .25))) {
+            testResult = "Calorie Density: " + df.format(density) + " cal/serving";
             testRating = 1;
         }
         else {
-            testResult = "Calorie Density is: " + df.format(density) + " cal/serving";
+            testResult = "Calorie Density: " + df.format(density) + " cal/serving";
             testRating = 0;
         }
         if((testRating == -1) | (testResult.isEmpty())){
@@ -44,9 +53,15 @@ public class FoodTestActivity {
         return Pair.with(testResult, testRating);
     }
 
-    public Pair<String, Integer> totalFat(double calories, double fat) throws IOException {
+    public Pair<String, Integer> totalFat(double calories, double fat, int settingValue) throws IOException {
+        if (settingValue == 0) {
+            return Pair.with("", -1);
+        }
+
         DecimalFormat df = new DecimalFormat("#.##"); // Formats data when printing
         df.setRoundingMode(RoundingMode.CEILING);
+
+        double testValue = settingValue * 0.02 * .175;
 
         String testResult = "";
         double fatComp = (fat * 9) / calories;         // There are 9 calories per gram of fat
@@ -57,16 +72,16 @@ public class FoodTestActivity {
         if((fatComp < 0) | (fatComp > 1)){             // Database error, negative fat composition is impossible
 
         }
-        else if((fatComp <= .15) & (fatComp >= 0.0)) {
-            testResult = "Total Fat Composition is: " + df.format(fatCompPerc) + "%. This is a good choice.";
+        else if((fatComp <= (testValue - .025))) {
+            testResult = "Total Fat Composition: " + df.format(fatCompPerc) + "%";
             testRating = 2;
         }
-        else if((fatComp > .15) & (fatComp <= .2)){
-            testResult = "Total Fat Composition is: " + df.format(fatCompPerc) + "%. This is between 15% and 20%. This is an acceptable choice.";
+        else if((fatComp > (testValue - .025)) & (fatComp <= (testValue + .025))){
+            testResult = "Total Fat Composition: " + df.format(fatCompPerc) + "%";
             testRating = 1;
         }
         else {
-            testResult = "Total Fat Composition is: " + df.format(fatCompPerc) + "%. This is above 20%, which may not be a good choice.";
+            testResult = "Total Fat Composition: " + df.format(fatCompPerc) + "%";
             testRating = 0;
         }
         if((testRating == -1) | (testResult.isEmpty())){
@@ -77,9 +92,15 @@ public class FoodTestActivity {
         return result;
     }
 
-    public Pair<String, Integer> saturatedFat(double calories, double satFat) throws IOException {
+    public Pair<String, Integer> saturatedFat(double calories, double satFat, int settingValue) throws IOException {
+        if (settingValue == 0) {
+            return Pair.with("", -1);
+        }
+
         DecimalFormat df = new DecimalFormat("#.##"); // Formats data when printing
         df.setRoundingMode(RoundingMode.CEILING);
+
+        double testValue = settingValue * 0.02 * .06;
 
         String testResult = "";
         double satFatComp = (satFat * 9) / calories;                //fat is 9 cals/g. This calculates Saturated Fat composition
@@ -89,16 +110,16 @@ public class FoodTestActivity {
         if((satFatComp < 0) | (satFatComp > 1)){                    // Database error, negative fat composition is impossible
 
         }
-        else if((satFatComp <= .05) & (satFatComp >= 0.0)) {
-            testResult = "Saturated Fat Composition is: " + df.format(satFatCompPerc) + "%. This is a good choice.";
+        else if((satFatComp <= (testValue - .01))) {
+            testResult = "Saturated Fat Composition: " + df.format(satFatCompPerc) + "%";
             testRating = 2;
         }
-        else if((satFatComp > .05) & (satFatComp <= .07)){
-            testResult = "Saturated Fat Composition is: " + df.format(satFatCompPerc) + "%. This is between 5% and 7%. This is an acceptable choice";
+        else if((satFatComp > (testValue - .01)) & (satFatComp <= (testValue + .01))){
+            testResult = "Saturated Fat Composition: " + df.format(satFatCompPerc) + "%";
             testRating = 1;
         }
         else {
-            testResult = "Saturated Fat Composition is: " + df.format(satFatCompPerc) + "%. This is above 7%, which may not be a good choice.";
+            testResult = "Saturated Fat Composition: " + df.format(satFatCompPerc) + "%";
             testRating = 0;
         }
         if((testRating == -1) | (testResult.isEmpty())){
@@ -109,7 +130,6 @@ public class FoodTestActivity {
     }
 
     public Pair<String, Integer> transFat(double transFats, String ingredients) throws IOException {
-
         DecimalFormat df = new DecimalFormat("#.##"); // Formats data when printing
         df.setRoundingMode(RoundingMode.CEILING);
 
@@ -121,12 +141,12 @@ public class FoodTestActivity {
         Integer testRating = -1;
 
         if((ingredients.contains("hydrogenated")) | (transFats > 0.0)){
-            testResult = "This food may contains hydrogenated oils which contain trans fats. This may not be a good choice";
+            testResult = "This food may have hydrogenated oils which contain trans fats.";
             testRating = 0;
 
         }
         else {
-            testResult = "This food does not contain any trans fats making it a good choice.";
+            testResult = "This food does not contain any trans fats.";
             testRating = 2;
         }
         if((testRating == -1) | (testResult.isEmpty())){
@@ -135,24 +155,29 @@ public class FoodTestActivity {
         return Pair.with(testResult,testRating);
     }
 
-    public Pair<String, Integer> cholesterolContent(double cholesterol, String ingredients) throws IOException {
+    public Pair<String, Integer> cholesterolContent(double cholesterol, int settingValue) throws IOException {
+        if (settingValue == 0) {
+            return Pair.with("", -1);
+        }
 
         DecimalFormat df = new DecimalFormat("#.##"); // Formats data when printing
         df.setRoundingMode(RoundingMode.CEILING);
 
+        double testValue = settingValue * 0.02 * 12.5;
+
         String testResult = "";
         Integer testRating = -1;
 
-        if(cholesterol > 25){
-            testResult = "The cholesterol is above 25mg which may not be a good choice.";
+        if(cholesterol > (testValue + 12.5)){
+            testResult = "Cholesterol: " + cholesterol + " mg";
             testRating = 0;
         }
-        else if((cholesterol <= 25.0) & (cholesterol > 0.0)){
-            testResult = "The cholesterol is below 25mg which is an acceptable choice.";
+        else if(cholesterol <= (testValue + 12.5) & (cholesterol > (testValue - 12.5))){
+            testResult = "Cholesterol: " + cholesterol + " mg";
             testRating = 1;
         }
-        else if(cholesterol == 0){
-            testResult = "The cholesterol is 0 making this a good choice";
+        else if(cholesterol <= (testValue - 12.5)){
+            testResult = "Cholesterol: " + cholesterol + " mg";
             testRating = 2;
         }
         if((testRating == -1) | (testResult.isEmpty())){
@@ -161,7 +186,11 @@ public class FoodTestActivity {
         return Pair.with(testResult, testRating);
     }
 
-    public Pair<String, Integer> sodiumContent(double calories, double sodium, String category) throws IOException {
+    public Pair<String, Integer> sodiumContent(double calories, double sodium, String category, int settingValue, int condSettingValue) throws IOException {
+        if (settingValue == 0) {
+            return Pair.with("", -1);
+        }
+
         DecimalFormat df = new DecimalFormat("#.##"); // Used to format data when printing
         df.setRoundingMode(RoundingMode.CEILING);
 
@@ -169,26 +198,42 @@ public class FoodTestActivity {
             category = "";
         }
 
+        double testValue = settingValue * 0.02 * 1;
+        double condTestValue = condSettingValue * 0.02 * 2;
+
         String testResult = "";
         Integer testRating = -1;
         double sodiumToCaloriesRatio = sodium/calories;
 
-        if(sodiumToCaloriesRatio <= 1.0){
-            testResult = "Sodium to Calorie Ratio: " + df.format(sodiumToCaloriesRatio) + " mg/cal";
-            testRating = 2;
+        if (category.contains("Ketchup, Mustard, BBQ & Cheese Sauce") || category.contains("Salad Dressing & Mayonnaise") || category.contains("Gravy Mix")) {
+            if (sodiumToCaloriesRatio <= (condTestValue - 2)) {
+                testResult = "Condiment Sodium to Calorie Ratio: " + df.format(sodiumToCaloriesRatio) + " mg/cal";
+                testRating = 2;
+            }
+            else if (sodiumToCaloriesRatio >= (condTestValue - 2) & sodiumToCaloriesRatio <= (condTestValue + 2)) {
+                testResult = "Condiment Sodium to Calorie Ratio: " + df.format(sodiumToCaloriesRatio) + " mg/cal";
+                testRating = 1;
+            }
+            else if (sodiumToCaloriesRatio > (condTestValue + 2)) {
+                testResult = "Condiment Sodium to Calorie Ratio: " + df.format(sodiumToCaloriesRatio) + " mg/cal";
+                testRating = 0;
+            }
         }
-        else if((sodiumToCaloriesRatio >= 1.0) & (sodiumToCaloriesRatio <= 4.0) & (category.contains("condiment"))){
-            testResult = "Sodium to Calorie Ratio: " + df.format(sodiumToCaloriesRatio) + " mg/cal";
-            testRating = 1;
+        else {
+            if (sodiumToCaloriesRatio <= (testValue - 1)) {
+                testResult = "Sodium to Calorie Ratio: " + df.format(sodiumToCaloriesRatio) + " mg/cal";
+                testRating = 2;
+            }
+            else if (sodiumToCaloriesRatio >= (testValue - 1) & sodiumToCaloriesRatio <= (testValue + 1)) {
+                testResult = "Sodium to Calorie Ratio: " + df.format(sodiumToCaloriesRatio) + " mg/cal";
+                testRating = 1;
+            }
+            else if (sodiumToCaloriesRatio > (testValue + 1)) {
+                testResult = "Sodium to Calorie Ratio: " + df.format(sodiumToCaloriesRatio) + " mg/cal";
+                testRating = 0;
+            }
         }
-        else if((sodiumToCaloriesRatio >= 1.0) & (sodiumToCaloriesRatio <= 2.0) & (!category.contains("condiment"))){
-            testResult = "Sodium to Calorie Ratio: " + df.format(sodiumToCaloriesRatio) + " mg/cal";
-            testRating = 1;
-        }
-        else if(((sodiumToCaloriesRatio > 2.0) & (!category.contains("condiment"))) | ((sodiumToCaloriesRatio > 4.0) & (category.contains("condiment")))){
-            testResult = "Sodium to Calorie Ratio: " + df.format(sodiumToCaloriesRatio) + " mg/cal";
-            testRating = 0;
-        }
+
         if((testRating == -1) | (testResult.isEmpty())){
             // error: no rating given
         }
@@ -196,25 +241,30 @@ public class FoodTestActivity {
         return Pair.with(testResult, testRating);
     }
 
-    public Pair<String, Integer> fiberContent(double calories, double fiber) throws IOException {
+    public Pair<String, Integer> fiberContent(double calories, double fiber, int settingValue) throws IOException {
+        if (settingValue == 0) {
+            return Pair.with("", -1);
+        }
 
         DecimalFormat df = new DecimalFormat("#.##"); // Used to format data when printing
         df.setRoundingMode(RoundingMode.CEILING);
 
-        double fiberToCalorieRatio = fiber/calories;
+        double testValue = settingValue * 0.02 * 2;
+
+        double fiberToCalorieRatio = (fiber/calories) * 100;
         String testResult = "";
         Integer testRating = -1;
 
-        if(fiberToCalorieRatio >= .03){
-            testResult = "Fiber to Calorie Ratio: " + df.format(fiberToCalorieRatio*100) + "g per 100 cals.";
+        if(fiberToCalorieRatio >= (testValue + 1)){
+            testResult = "Fiber to Calorie Ratio: " + df.format(fiberToCalorieRatio) + " g per 100 cal";
             testRating = 2;
         }
-        else if((fiberToCalorieRatio >= .02) & (fiberToCalorieRatio <= .03)) {
-            testResult = "Fiber to Calorie Ratio: " + df.format(fiberToCalorieRatio*100) + "g per 100 cals.";
+        else if(fiberToCalorieRatio >= (testValue - 1) & (fiberToCalorieRatio <= (testValue + 1))) {
+            testResult = "Fiber to Calorie Ratio: " + df.format(fiberToCalorieRatio) + " g per 100 cal";
             testRating = 1;
         }
-        else if(fiberToCalorieRatio < .02){
-            testResult = "Fiber to Calorie Ratio: " + df.format(fiberToCalorieRatio*100) + "g per 100 cals.";
+        else if(fiberToCalorieRatio < (testValue - 1)){
+            testResult = "Fiber to Calorie Ratio: " + df.format(fiberToCalorieRatio) + " g per 100 cal";
             testRating = 0;
         }
         if((testRating == -1) | (testResult.isEmpty())){
@@ -230,6 +280,10 @@ public class FoodTestActivity {
         Integer testRating = -1;
         Boolean bad = false;
         Boolean goodf = false;
+
+        if(ingredients == null) { // Some foods don't have ingredients lists. This gives them a default empty string
+            ingredients = "";
+        }
 
         for(int i = 0; i<badflours.length; i++){
             if( Pattern.compile(Pattern.quote(badflours[i]), Pattern.CASE_INSENSITIVE).matcher(ingredients).find()){
@@ -255,8 +309,8 @@ public class FoodTestActivity {
             testResult = "This food contains bad flours or grains.";
         }
         else{
-            testRating = 4;
-            testResult = "No flours or grains.";
+            testRating = 2;
+            testResult = "This food does not contain flours or grains.";
 
         }
 
@@ -269,6 +323,10 @@ public class FoodTestActivity {
         String testResult = "";
         Integer testRating = -1;
         Boolean bad = false;
+
+        if(ingredients == null) { // Some foods don't have ingredients lists. This gives them a default empty string
+            ingredients = "";
+        }
 
         for(int i = 0; i < badsug.length; i++){
             if(Pattern.compile(Pattern.quote(badsug[i]), Pattern.CASE_INSENSITIVE).matcher(ingredients).find()){

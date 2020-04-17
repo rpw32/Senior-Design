@@ -10,4 +10,6 @@
     <string name="search_for_a_food">Search for a food</string>
     <string name="servings_of">Serving(s) of</string>
     <string name="default_num_servings">1</string>
+    <string name="settings">Settings</string>
+    <string name="reset">Reset</string>
 </resources>

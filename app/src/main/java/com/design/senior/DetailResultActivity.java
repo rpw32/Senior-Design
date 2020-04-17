@@ -542,335 +542,420 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
 //            textView.append("Food Data Central ID: " + food1.fdcId);
 //            row.addView(textView);
 //            detailTable.addView(row);
-//            
+
+            if(food1.brandedFoodCategory == null) { // Some foods don't have ingredients lists. This gives them a default empty string
+                food1.brandedFoodCategory = "";
+            }
+
+            // Set default setting values
+            String[] settingNames = {"calorie", "fat", "satfat", "transfat", "sodium", "cholesterol", "fiber", "flour", "sugar"};
+
+            // Settings default to 50 if they are not set
+            for (int i = 0; i < settingNames.length; i++) {
+                if(!mDatabaseHelper.settingsCheckAlreadyExist(settingNames[i])) {
+                    if(i == 3 || i == 7 || i == 8) { // transfat, flour and sugar all have a max slider value of 1
+                        mDatabaseHelper.settingsAddData(settingNames[i], 1);
+                    }
+                    else {
+                        mDatabaseHelper.settingsAddData(settingNames[i], 50);
+                    }
+                }
+            }
 
             // Nutrition Tests
             FoodTestActivity test1 = new FoodTestActivity();
-            Pair<String, Integer> calorieDensity = test1.calorieDensity(food1.calories, food1.servingSize);
-            Pair<String, Integer> totalFatComp = test1.totalFat(food1.calories, food1.fat);
-            Pair<String, Integer> satFatComp = test1.saturatedFat(food1.calories, food1.saturatedFat);
+            Pair<String, Integer> calorieDensity = test1.calorieDensity(food1.calories, food1.servingSize, mDatabaseHelper.settingsGetData("calorie"));
+            Pair<String, Integer> totalFatComp = test1.totalFat(food1.calories, food1.fat, mDatabaseHelper.settingsGetData("fat"));
+            Pair<String, Integer> satFatComp = test1.saturatedFat(food1.calories, food1.saturatedFat, mDatabaseHelper.settingsGetData("satfat"));
             Pair<String, Integer> transFat = test1.transFat(food1.transFat, food1.ingredients);
-            Pair<String, Integer> sodium = test1.sodiumContent(food1.calories, food1.sodium, food1.brandedFoodCategory);
-            Pair<String, Integer> cholesterol = test1.cholesterolContent(food1.cholesterol, food1.ingredients);
-            Pair<String, Integer> fiber = test1.fiberContent(food1.calories, food1.fiber);
+            Pair<String, Integer> sodium = test1.sodiumContent(food1.calories, food1.sodium, food1.brandedFoodCategory, mDatabaseHelper.settingsGetData("sodium"), mDatabaseHelper.settingsGetData("sodiumCond"));
+            Pair<String, Integer> cholesterol = test1.cholesterolContent(food1.cholesterol, mDatabaseHelper.settingsGetData("cholesterol"));
+            Pair<String, Integer> fiber = test1.fiberContent(food1.calories, food1.fiber, mDatabaseHelper.settingsGetData("fiber"));
             Pair<String, Integer> flour = test1.flours(food1.ingredients);
             Pair<String, Integer> sugar = test1.sugars(food1.ingredients);
 
             // Calorie Density
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textView = new TextView(this);
-            textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
-            textView.setLayoutParams(textParams);
-            textView.setTypeface(Typeface.DEFAULT_BOLD);
-            textView.append("\nCalorie Density Test");
-            row.addView(textView);
-            testTable.addView(row);
-            
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textView = new TextView(this);
-            textView.setTextColor(Color.parseColor("#000000"));
-            textView.setLayoutParams(textParams);
-            textView.append(calorieDensity.getValue0());
-            row.addView(textView);
-            testTable.addView(row);
-            
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textViewL = new TextView(this);
-            textViewR = new TextView(this);
-            textViewL.setTextColor(Color.parseColor("#000000"));
-            textViewR.setTextColor(Color.parseColor("#000000"));
-            textViewL.setLayoutParams(textParams);
-            textViewR.setLayoutParams(textParams);
-            textViewL.append("Rating:");
-            textViewR.append(testRatingDecode(calorieDensity.getValue1()));
-            row.addView(textViewL);
-            row.addView(textViewR);
-            testTable.addView(row);
-            
+            if (mDatabaseHelper.settingsGetData("calorie") != 0) {
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
+                textView.setLayoutParams(textParams);
+                textView.setTypeface(Typeface.DEFAULT_BOLD);
+                textView.append("\nCalorie Density Test");
+                row.addView(textView);
+                testTable.addView(row);
 
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(Color.parseColor("#000000"));
+                textView.setLayoutParams(textParams);
+                textView.append("Accepted value: " + df.format((mDatabaseHelper.settingsGetData("calorie") * 0.02 * 1.25) - .25) + " cal/serving - " + df.format((mDatabaseHelper.settingsGetData("calorie") * 0.02 * 1.25) + .25) + " cal/serving");
+                row.addView(textView);
+                testTable.addView(row);
+
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(Color.parseColor("#000000"));
+                textView.setLayoutParams(textParams);
+                textView.append(calorieDensity.getValue0());
+                row.addView(textView);
+                testTable.addView(row);
+
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textViewL = new TextView(this);
+                textViewR = new TextView(this);
+                textViewL.setTextColor(Color.parseColor("#000000"));
+                textViewR.setTextColor(Color.parseColor("#000000"));
+                textViewL.setLayoutParams(textParams);
+                textViewR.setLayoutParams(textParams);
+                textViewL.append("Rating:");
+                textViewR.append(testRatingDecode(calorieDensity.getValue1()));
+                row.addView(textViewL);
+                row.addView(textViewR);
+                testTable.addView(row);
+            }
 
             // Total Fat
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textView = new TextView(this);
-            textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
-            textView.setLayoutParams(textParams);
-            textView.setTypeface(Typeface.DEFAULT_BOLD);
-            textView.append("\nTotal Fat Test");
-            row.addView(textView);
-            testTable.addView(row);
-            
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textView = new TextView(this);
-            textView.setTextColor(Color.parseColor("#000000"));
-            textView.setLayoutParams(textParams);
-            textView.append(totalFatComp.getValue0());
-            row.addView(textView);
-            testTable.addView(row);
-            
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textViewL = new TextView(this);
-            textViewR = new TextView(this);
-            textViewL.setTextColor(Color.parseColor("#000000"));
-            textViewR.setTextColor(Color.parseColor("#000000"));
-            textViewL.setLayoutParams(textParams);
-            textViewR.setLayoutParams(textParams);
-            textViewL.append("Rating:");
-            textViewR.append(testRatingDecode(totalFatComp.getValue1()));
-            row.addView(textViewL);
-            row.addView(textViewR);
-            testTable.addView(row);
-            
+            if (mDatabaseHelper.settingsGetData("fat") != 0) {
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
+                textView.setLayoutParams(textParams);
+                textView.setTypeface(Typeface.DEFAULT_BOLD);
+                textView.append("\nTotal Fat Test");
+                row.addView(textView);
+                testTable.addView(row);
+
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(Color.parseColor("#000000"));
+                textView.setLayoutParams(textParams);
+                textView.append("Accepted value: " + df.format(((mDatabaseHelper.settingsGetData("fat") * 0.02 * .175) - .025) * 100) + "% - " + df.format(((mDatabaseHelper.settingsGetData("fat") * 0.02 * .175) + .025) * 100) + "%");
+                row.addView(textView);
+                testTable.addView(row);
+
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(Color.parseColor("#000000"));
+                textView.setLayoutParams(textParams);
+                textView.append(totalFatComp.getValue0());
+                row.addView(textView);
+                testTable.addView(row);
+
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textViewL = new TextView(this);
+                textViewR = new TextView(this);
+                textViewL.setTextColor(Color.parseColor("#000000"));
+                textViewR.setTextColor(Color.parseColor("#000000"));
+                textViewL.setLayoutParams(textParams);
+                textViewR.setLayoutParams(textParams);
+                textViewL.append("Rating:");
+                textViewR.append(testRatingDecode(totalFatComp.getValue1()));
+                row.addView(textViewL);
+                row.addView(textViewR);
+                testTable.addView(row);
+            }
 
             // Saturated Fat
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textView = new TextView(this);
-            textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
-            textView.setLayoutParams(textParams);
-            textView.setTypeface(Typeface.DEFAULT_BOLD);
-            textView.append("\nSaturated Fat Test");
-            row.addView(textView);
-            testTable.addView(row);
-            
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textView = new TextView(this);
-            textView.setTextColor(Color.parseColor("#000000"));
-            textView.setLayoutParams(textParams);
-            textView.append(satFatComp.getValue0());
-            row.addView(textView);
-            testTable.addView(row);
-            
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textViewL = new TextView(this);
-            textViewR = new TextView(this);
-            textViewL.setTextColor(Color.parseColor("#000000"));
-            textViewR.setTextColor(Color.parseColor("#000000"));
-            textViewL.setLayoutParams(textParams);
-            textViewR.setLayoutParams(textParams);
-            textViewL.append("Rating:");
-            textViewR.append(testRatingDecode(satFatComp.getValue1()));
-            row.addView(textViewL);
-            row.addView(textViewR);
-            testTable.addView(row);
-            
+            if (mDatabaseHelper.settingsGetData("satfat") != 0) {
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
+                textView.setLayoutParams(textParams);
+                textView.setTypeface(Typeface.DEFAULT_BOLD);
+                textView.append("\nSaturated Fat Test");
+                row.addView(textView);
+                testTable.addView(row);
+
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(Color.parseColor("#000000"));
+                textView.setLayoutParams(textParams);
+                textView.append("Accepted value: " + df.format(((mDatabaseHelper.settingsGetData("satfat") * 0.02 * .06) - .01) * 100) + "% - " + df.format(((mDatabaseHelper.settingsGetData("satfat") * 0.02 * .06) + .01) * 100) + "%");
+                row.addView(textView);
+                testTable.addView(row);
+
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(Color.parseColor("#000000"));
+                textView.setLayoutParams(textParams);
+                textView.append(satFatComp.getValue0());
+                row.addView(textView);
+                testTable.addView(row);
+
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textViewL = new TextView(this);
+                textViewR = new TextView(this);
+                textViewL.setTextColor(Color.parseColor("#000000"));
+                textViewR.setTextColor(Color.parseColor("#000000"));
+                textViewL.setLayoutParams(textParams);
+                textViewR.setLayoutParams(textParams);
+                textViewL.append("Rating:");
+                textViewR.append(testRatingDecode(satFatComp.getValue1()));
+                row.addView(textViewL);
+                row.addView(textViewR);
+                testTable.addView(row);
+            }
 
             // Trans Fat
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textView = new TextView(this);
-            textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
-            textView.setLayoutParams(textParams);
-            textView.setTypeface(Typeface.DEFAULT_BOLD);
-            textView.append("\nTrans Fat Test");
-            row.addView(textView);
-            testTable.addView(row);
-            
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textView = new TextView(this);
-            textView.setTextColor(Color.parseColor("#000000"));
-            textView.setLayoutParams(textParams);
-            textView.append(transFat.getValue0());
-            row.addView(textView);
-            testTable.addView(row);
-            
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textViewL = new TextView(this);
-            textViewR = new TextView(this);
-            textViewL.setTextColor(Color.parseColor("#000000"));
-            textViewR.setTextColor(Color.parseColor("#000000"));
-            textViewL.setLayoutParams(textParams);
-            textViewR.setLayoutParams(textParams);
-            textViewL.append("Rating:");
-            textViewR.append(testRatingDecode(transFat.getValue1()));
-            row.addView(textViewL);
-            row.addView(textViewR);
-            testTable.addView(row);
-            
+            if (mDatabaseHelper.settingsGetData("transfat") != 0) {
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
+                textView.setLayoutParams(textParams);
+                textView.setTypeface(Typeface.DEFAULT_BOLD);
+                textView.append("\nTrans Fat Test");
+                row.addView(textView);
+                testTable.addView(row);
+
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(Color.parseColor("#000000"));
+                textView.setLayoutParams(textParams);
+                textView.append(transFat.getValue0());
+                row.addView(textView);
+                testTable.addView(row);
+
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textViewL = new TextView(this);
+                textViewR = new TextView(this);
+                textViewL.setTextColor(Color.parseColor("#000000"));
+                textViewR.setTextColor(Color.parseColor("#000000"));
+                textViewL.setLayoutParams(textParams);
+                textViewR.setLayoutParams(textParams);
+                textViewL.append("Rating:");
+                textViewR.append(testRatingDecode(transFat.getValue1()));
+                row.addView(textViewL);
+                row.addView(textViewR);
+                testTable.addView(row);
+            }
 
             // Sodium
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textView = new TextView(this);
-            textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
-            textView.setLayoutParams(textParams);
-            textView.setTypeface(Typeface.DEFAULT_BOLD);
-            textView.append("\nSodium Test");
-            row.addView(textView);
-            testTable.addView(row);
-            
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textView = new TextView(this);
-            textView.setTextColor(Color.parseColor("#000000"));
-            textView.setLayoutParams(textParams);
-            textView.append(sodium.getValue0());
-            row.addView(textView);
-            testTable.addView(row);
-            
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textViewL = new TextView(this);
-            textViewR = new TextView(this);
-            textViewL.setTextColor(Color.parseColor("#000000"));
-            textViewR.setTextColor(Color.parseColor("#000000"));
-            textViewL.setLayoutParams(textParams);
-            textViewR.setLayoutParams(textParams);
-            textViewL.append("Rating:");
-            textViewR.append(testRatingDecode(sodium.getValue1()));
-            row.addView(textViewL);
-            row.addView(textViewR);
-            testTable.addView(row);
-            
+            if ((mDatabaseHelper.settingsGetData("sodium") != 0 && (!food1.brandedFoodCategory.contains("Ketchup, Mustard, BBQ & Cheese Sauce") || !food1.brandedFoodCategory.contains("Salad Dressing & Mayonnaise") || !food1.brandedFoodCategory.contains("Gravy Mix"))) || (mDatabaseHelper.settingsGetData("sodiumCond") != 0 && (food1.brandedFoodCategory.contains("Ketchup, Mustard, BBQ & Cheese Sauce") || food1.brandedFoodCategory.contains("Salad Dressing & Mayonnaise") || food1.brandedFoodCategory.contains("Gravy Mix")))) {
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
+                textView.setLayoutParams(textParams);
+                textView.setTypeface(Typeface.DEFAULT_BOLD);
+                textView.append("\nSodium Test");
+                row.addView(textView);
+                testTable.addView(row);
+
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(Color.parseColor("#000000"));
+                textView.setLayoutParams(textParams);
+                if (!food1.brandedFoodCategory.contains("Ketchup, Mustard, BBQ & Cheese Sauce") || !food1.brandedFoodCategory.contains("Salad Dressing & Mayonnaise") || !food1.brandedFoodCategory.contains("Gravy Mix")) {
+                    textView.append("Accepted value: " + df.format((mDatabaseHelper.settingsGetData("sodium") * 0.02 * 1) - 1) + " mg/cal - " + df.format((mDatabaseHelper.settingsGetData("sodium") * 0.02 * 1) + 1) + " mg/cal");
+                }
+                else {
+                    textView.append("Accepted condiment value: " + df.format((mDatabaseHelper.settingsGetData("sodiumCond") * 0.02 * 2) - 2) + " mg/cal - " + df.format((mDatabaseHelper.settingsGetData("sodiumCond") * 0.02 * 2) + 2) + " mg/cal");
+                }
+                row.addView(textView);
+                testTable.addView(row);
+
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(Color.parseColor("#000000"));
+                textView.setLayoutParams(textParams);
+                textView.append(sodium.getValue0());
+                row.addView(textView);
+                testTable.addView(row);
+
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textViewL = new TextView(this);
+                textViewR = new TextView(this);
+                textViewL.setTextColor(Color.parseColor("#000000"));
+                textViewR.setTextColor(Color.parseColor("#000000"));
+                textViewL.setLayoutParams(textParams);
+                textViewR.setLayoutParams(textParams);
+                textViewL.append("Rating:");
+                textViewR.append(testRatingDecode(sodium.getValue1()));
+                row.addView(textViewL);
+                row.addView(textViewR);
+                testTable.addView(row);
+            }
 
             // Cholesterol
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textView = new TextView(this);
-            textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
-            textView.setLayoutParams(textParams);
-            textView.setTypeface(Typeface.DEFAULT_BOLD);
-            textView.append("\nCholesterol Test");
-            row.addView(textView);
-            testTable.addView(row);
-            
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textView = new TextView(this);
-            textView.setTextColor(Color.parseColor("#000000"));
-            textView.setLayoutParams(textParams);
-            textView.append(cholesterol.getValue0());
-            row.addView(textView);
-            testTable.addView(row);
-            
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textViewL = new TextView(this);
-            textViewR = new TextView(this);
-            textViewL.setTextColor(Color.parseColor("#000000"));
-            textViewR.setTextColor(Color.parseColor("#000000"));
-            textViewL.setLayoutParams(textParams);
-            textViewR.setLayoutParams(textParams);
-            textViewL.append("Rating:");
-            textViewR.append(testRatingDecode(cholesterol.getValue1()));
-            row.addView(textViewL);
-            row.addView(textViewR);
-            testTable.addView(row);
-            
+            if (mDatabaseHelper.settingsGetData("cholesterol") != 0) {
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
+                textView.setLayoutParams(textParams);
+                textView.setTypeface(Typeface.DEFAULT_BOLD);
+                textView.append("\nCholesterol Test");
+                row.addView(textView);
+                testTable.addView(row);
+
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(Color.parseColor("#000000"));
+                textView.setLayoutParams(textParams);
+                textView.append("Accepted value: " + df.format((mDatabaseHelper.settingsGetData("cholesterol") * 0.02 * 12.5) - 12.5) + " mg - " + df.format((mDatabaseHelper.settingsGetData("cholesterol") * 0.02 * 12.5) + 12.5) + " mg");
+                row.addView(textView);
+                testTable.addView(row);
+
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(Color.parseColor("#000000"));
+                textView.setLayoutParams(textParams);
+                textView.append(cholesterol.getValue0());
+                row.addView(textView);
+                testTable.addView(row);
+
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textViewL = new TextView(this);
+                textViewR = new TextView(this);
+                textViewL.setTextColor(Color.parseColor("#000000"));
+                textViewR.setTextColor(Color.parseColor("#000000"));
+                textViewL.setLayoutParams(textParams);
+                textViewR.setLayoutParams(textParams);
+                textViewL.append("Rating:");
+                textViewR.append(testRatingDecode(cholesterol.getValue1()));
+                row.addView(textViewL);
+                row.addView(textViewR);
+                testTable.addView(row);
+            }
 
             // Fiber
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textView = new TextView(this);
-            textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
-            textView.setLayoutParams(textParams);
-            textView.setTypeface(Typeface.DEFAULT_BOLD);
-            textView.append("\nFiber Test");
-            row.addView(textView);
-            testTable.addView(row);
+            if (mDatabaseHelper.settingsGetData("fiber") != 0) {
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
+                textView.setLayoutParams(textParams);
+                textView.setTypeface(Typeface.DEFAULT_BOLD);
+                textView.append("\nFiber Test");
+                row.addView(textView);
+                testTable.addView(row);
 
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textView = new TextView(this);
-            textView.setTextColor(Color.parseColor("#000000"));
-            textView.setLayoutParams(textParams);
-            textView.append(fiber.getValue0());
-            row.addView(textView);
-            testTable.addView(row);
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(Color.parseColor("#000000"));
+                textView.setLayoutParams(textParams);
+                textView.append("Accepted value: " + df.format((mDatabaseHelper.settingsGetData("fiber") * 0.02 * 2) - 1) + " g - " + df.format((mDatabaseHelper.settingsGetData("fiber") * 0.02 * 2) + 1) + " g per 100 cal");
+                row.addView(textView);
+                testTable.addView(row);
 
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textViewL = new TextView(this);
-            textViewR = new TextView(this);
-            textViewL.setTextColor(Color.parseColor("#000000"));
-            textViewR.setTextColor(Color.parseColor("#000000"));
-            textViewL.setLayoutParams(textParams);
-            textViewR.setLayoutParams(textParams);
-            textViewL.append("Rating:");
-            textViewR.append(testRatingDecode(fiber.getValue1()));
-            row.addView(textViewL);
-            row.addView(textViewR);
-            testTable.addView(row);
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(Color.parseColor("#000000"));
+                textView.setLayoutParams(textParams);
+                textView.append(fiber.getValue0());
+                row.addView(textView);
+                testTable.addView(row);
 
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textViewL = new TextView(this);
+                textViewR = new TextView(this);
+                textViewL.setTextColor(Color.parseColor("#000000"));
+                textViewR.setTextColor(Color.parseColor("#000000"));
+                textViewL.setLayoutParams(textParams);
+                textViewR.setLayoutParams(textParams);
+                textViewL.append("Rating:");
+                textViewR.append(testRatingDecode(fiber.getValue1()));
+                row.addView(textViewL);
+                row.addView(textViewR);
+                testTable.addView(row);
+            }
 
             // Flours and Grains
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textView = new TextView(this);
-            textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
-            textView.setLayoutParams(textParams);
-            textView.setTypeface(Typeface.DEFAULT_BOLD);
-            textView.append("\nFlour and Grain Test");
-            row.addView(textView);
-            testTable.addView(row);
+            if (mDatabaseHelper.settingsGetData("flour") != 0) {
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
+                textView.setLayoutParams(textParams);
+                textView.setTypeface(Typeface.DEFAULT_BOLD);
+                textView.append("\nFlour and Grain Test");
+                row.addView(textView);
+                testTable.addView(row);
 
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textView = new TextView(this);
-            textView.setTextColor(Color.parseColor("#000000"));
-            textView.setLayoutParams(textParams);
-            textView.append(flour.getValue0());
-            row.addView(textView);
-            testTable.addView(row);
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(Color.parseColor("#000000"));
+                textView.setLayoutParams(textParams);
+                textView.append(flour.getValue0());
+                row.addView(textView);
+                testTable.addView(row);
 
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textViewL = new TextView(this);
-            textViewR = new TextView(this);
-            textViewL.setTextColor(Color.parseColor("#000000"));
-            textViewR.setTextColor(Color.parseColor("#000000"));
-            textViewL.setLayoutParams(textParams);
-            textViewR.setLayoutParams(textParams);
-            textViewL.append("Rating:");
-            textViewR.append(testRatingDecode(flour.getValue1()));
-            row.addView(textViewL);
-            row.addView(textViewR);
-            testTable.addView(row);
-
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textViewL = new TextView(this);
+                textViewR = new TextView(this);
+                textViewL.setTextColor(Color.parseColor("#000000"));
+                textViewR.setTextColor(Color.parseColor("#000000"));
+                textViewL.setLayoutParams(textParams);
+                textViewR.setLayoutParams(textParams);
+                textViewL.append("Rating:");
+                textViewR.append(testRatingDecode(flour.getValue1()));
+                row.addView(textViewL);
+                row.addView(textViewR);
+                testTable.addView(row);
+            }
 
             // Added Sugars
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textView = new TextView(this);
-            textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
-            textView.setLayoutParams(textParams);
-            textView.setTypeface(Typeface.DEFAULT_BOLD);
-            textView.append("\nAdded Sugars Test");
-            row.addView(textView);
-            testTable.addView(row);
+            if (mDatabaseHelper.settingsGetData("sugar") != 0) {
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
+                textView.setLayoutParams(textParams);
+                textView.setTypeface(Typeface.DEFAULT_BOLD);
+                textView.append("\nAdded Sugars Test");
+                row.addView(textView);
+                testTable.addView(row);
 
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textView = new TextView(this);
-            textView.setTextColor(Color.parseColor("#000000"));
-            textView.setLayoutParams(textParams);
-            textView.append(sugar.getValue0());
-            row.addView(textView);
-            testTable.addView(row);
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textView = new TextView(this);
+                textView.setTextColor(Color.parseColor("#000000"));
+                textView.setLayoutParams(textParams);
+                textView.append(sugar.getValue0());
+                row.addView(textView);
+                testTable.addView(row);
 
-            row = new TableRow(this);
-            row.setLayoutParams(lp);
-            textViewL = new TextView(this);
-            textViewR = new TextView(this);
-            textViewL.setTextColor(Color.parseColor("#000000"));
-            textViewR.setTextColor(Color.parseColor("#000000"));
-            textViewL.setLayoutParams(textParams);
-            textViewR.setLayoutParams(textParams);
-            textViewL.append("Rating:");
-            textViewR.append(testRatingDecode(sugar.getValue1()));
-            row.addView(textViewL);
-            row.addView(textViewR);
-            testTable.addView(row);
-
+                row = new TableRow(this);
+                row.setLayoutParams(lp);
+                textViewL = new TextView(this);
+                textViewR = new TextView(this);
+                textViewL.setTextColor(Color.parseColor("#000000"));
+                textViewR.setTextColor(Color.parseColor("#000000"));
+                textViewL.setLayoutParams(textParams);
+                textViewR.setLayoutParams(textParams);
+                textViewL.append("Rating:");
+                textViewR.append(testRatingDecode(sugar.getValue1()));
+                row.addView(textViewL);
+                row.addView(textViewR);
+                testTable.addView(row);
+            }
 
             // Dialog box to get serving size from the user
             textView = findViewById(servingViewId);

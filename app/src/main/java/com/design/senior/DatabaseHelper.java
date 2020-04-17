@@ -19,6 +19,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DETAIL_TABLE_NAME = "detailTable";
     private static final String SEARCH_TABLE_NAME = "searchTable";
     private static final String UPC_TABLE_NAME = "upcTable";
+    private static final String SETTINGS_TABLE_NAME = "settingsTable";
     private static final String DETAIL_COL0 = "fdcId";
     private static final String DETAIL_COL1 = "response";
     private static final String SEARCH_COL0 = "searchQuery";
@@ -26,6 +27,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String SEARCH_COL2 = "pageNumber";
     private static final String UPC_COL0 = "upc";
     private static final String UPC_COL1 = "name";
+    private static final String SETTINGS_COL0 = "setting";
+    private static final String SETTINGS_COL1 = "value";
+
+
 
     // These files are used to determine the size of the database
     private static int mPageSize;
@@ -51,10 +56,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String createDetailTable = "CREATE TABLE " + DETAIL_TABLE_NAME + " (" + DETAIL_COL0 + " INTEGER," + DETAIL_COL1 + " TEXT)";
         String createSearchTable = "CREATE TABLE " + SEARCH_TABLE_NAME + " (" + SEARCH_COL0 + " TEXT," + SEARCH_COL1 + " TEXT," + SEARCH_COL2 + " INTEGER)";
         String createUpcTable = "CREATE TABLE " + UPC_TABLE_NAME + " (" + UPC_COL0 + " TEXT," + UPC_COL1 + " TEXT)";
+        String createSettingsTable = "CREATE TABLE " + SETTINGS_TABLE_NAME + " (" + SETTINGS_COL0 + " TEXT," + SETTINGS_COL1 + " INTEGER)";
 
         db.execSQL(createDetailTable);
         db.execSQL(createSearchTable);
         db.execSQL(createUpcTable);
+        db.execSQL(createSettingsTable);
     }
 
     // Tables are dropped on upgrade
@@ -63,6 +70,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + DETAIL_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + SEARCH_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + UPC_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + SETTINGS_TABLE_NAME);
         onCreate(db);
     }
 
@@ -239,6 +247,60 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         Log.d(TAG, "Fetched " + gtinUpc + " from " + UPC_TABLE_NAME);
         return response;
+    }
+
+    // Checks if the fdcId is already located in the settings table
+    public boolean settingsCheckAlreadyExist(String setting) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selectString = "SELECT * FROM " + SETTINGS_TABLE_NAME + " WHERE setting=?";
+        Cursor cursor = db.rawQuery(selectString, new String[] {setting});
+
+        if (cursor.getCount() > 0) {
+            Log.d(TAG, "checkAlreadyExist: " + setting + " is already in " + SETTINGS_TABLE_NAME);
+            cursor.close();
+            return true;
+        }
+        else {
+            Log.d(TAG, "checkAlreadyExist: " + setting + " is not in " + SETTINGS_TABLE_NAME);
+            cursor.close();
+            return false;
+        }
+
+    }
+
+    // Adds setting and value as a row in the settings table
+    public boolean settingsAddData(String setting, int value) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(SETTINGS_COL0, setting);
+        contentValues.put(SETTINGS_COL1, value);
+
+        Log.d(TAG, "addData: Adding " + setting + " to " + SETTINGS_TABLE_NAME + " with value " + value);
+
+        // Delete previous entry before inserting new one
+        db.delete(SETTINGS_TABLE_NAME, "setting=?", new String[]{setting});
+
+        long result = db.insert(SETTINGS_TABLE_NAME, null, contentValues);
+
+        // If data is inserted incorrectly it will return -1
+        if (result == -1) {
+            return false;
+        } else {
+            return true;
+        }
+
+    }
+
+    // Fetch the setting value when given the setting
+    public int settingsGetData(String setting) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selectString = "SELECT * FROM " + SETTINGS_TABLE_NAME + " WHERE setting=?";
+        Cursor cursor = db.rawQuery(selectString, new String[] {setting});
+        cursor.moveToFirst();
+        int value = cursor.getInt(1); // Column index 1 is for responses
+        cursor.close();
+        Log.d(TAG, "getData: Getting " + setting + " from " + SETTINGS_TABLE_NAME + " with value " + value);
+        return value;
     }
 
     // The following functions are used to determine the size of the database
