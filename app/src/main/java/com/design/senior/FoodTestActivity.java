@@ -65,6 +65,9 @@ public class FoodTestActivity {
 
         String testResult = "";
         double fatComp = (fat * 9) / calories;         // There are 9 calories per gram of fat
+        if (calories == 0) {
+            fatComp = 0;
+        }
         double fatCompPerc = fatComp * 100;
         Integer testRating = -1;
 
@@ -104,6 +107,9 @@ public class FoodTestActivity {
 
         String testResult = "";
         double satFatComp = (satFat * 9) / calories;                //fat is 9 cals/g. This calculates Saturated Fat composition
+        if (calories == 0) {
+            satFatComp = 0;
+        }
         double satFatCompPerc = satFatComp*100;
         Integer testRating = -1;
 
@@ -205,6 +211,12 @@ public class FoodTestActivity {
         Integer testRating = -1;
         double sodiumToCaloriesRatio = sodium/calories;
 
+        if (calories == 0) {
+            testResult = "Condiment Sodium to Calorie Ratio: N/A";
+            testRating = 3;
+            return Pair.with(testResult, testRating);
+        }
+
         if (category.contains("Ketchup, Mustard, BBQ & Cheese Sauce") || category.contains("Salad Dressing & Mayonnaise") || category.contains("Gravy Mix")) {
             if (sodiumToCaloriesRatio <= (condTestValue - 2)) {
                 testResult = "Condiment Sodium to Calorie Ratio: " + df.format(sodiumToCaloriesRatio) + " mg/cal";
@@ -255,7 +267,11 @@ public class FoodTestActivity {
         String testResult = "";
         Integer testRating = -1;
 
-        if(fiberToCalorieRatio >= (testValue + 1)){
+        if (calories == 0) {
+            testResult = "Fiber to Calorie Ratio: N/A";
+            testRating = 3;
+        }
+        else if(fiberToCalorieRatio >= (testValue + 1)){
             testResult = "Fiber to Calorie Ratio: " + df.format(fiberToCalorieRatio) + " g per 100 cal";
             testRating = 2;
         }

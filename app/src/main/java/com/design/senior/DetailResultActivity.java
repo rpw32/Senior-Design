@@ -983,6 +983,8 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
     private String testRatingDecode(Integer rating) {
 
         String result = "";
+        if(rating == 3)
+            result = "N/A";
         if(rating == 2)
             result = "Best";
         if(rating == 1)
