@@ -175,15 +175,15 @@ public class FoodTestActivity {
         Integer testRating = -1;
 
         if(cholesterol > (testValue + 12.5)){
-            testResult = "Cholesterol: " + cholesterol + " mg";
+            testResult = "Cholesterol: " + df.format(cholesterol) + " mg";
             testRating = 0;
         }
         else if(cholesterol <= (testValue + 12.5) & (cholesterol > (testValue - 12.5))){
-            testResult = "Cholesterol: " + cholesterol + " mg";
+            testResult = "Cholesterol: " + df.format(cholesterol) + " mg";
             testRating = 1;
         }
         else if(cholesterol <= (testValue - 12.5)){
-            testResult = "Cholesterol: " + cholesterol + " mg";
+            testResult = "Cholesterol: " + df.format(cholesterol) + " mg";
             testRating = 2;
         }
         if((testRating == -1) | (testResult.isEmpty())){
