@@ -84,12 +84,12 @@ public class TestSettingsActivity extends AppCompatActivity{
 
         // Set default TextView and SeekBar values
         if (mDatabaseHelper.settingsGetData("calorie") == 50) {
-            text = "Calorie Density: " + df.format((defaultValue * 0.02 * 1.25) - .25) + " cal/serving - " + df.format((defaultValue * 0.02 * 1.25) + .25) + " cal/serving";
+            text = "Calorie Density: " + df.format((defaultValue * 0.02 * 1.25) - .25) + " cal/g - " + df.format((defaultValue * 0.02 * 1.25) + .25) + " cal/g";
             calorieText.setText(text);
         }
         else {
             double calorieValue = calorieSeek.getProgress() * 0.02 * 1.25;
-            text = "Calorie Density: " + df.format(calorieValue - .25) + " cal/serving - " + df.format(calorieValue + .25) + " cal/serving";
+            text = "Calorie Density: " + df.format(calorieValue - .25) + " cal/g - " + df.format(calorieValue + .25) + " cal/g";
             calorieText.setText(text);
         }
         if (mDatabaseHelper.settingsGetData("fat") == 50) {
@@ -137,12 +137,12 @@ public class TestSettingsActivity extends AppCompatActivity{
             sodiumCondText.setText(text);
         }
         if (mDatabaseHelper.settingsGetData("cholesterol") == 50) {
-            text = "Cholesterol: " + df.format((defaultValue * 0.02 * 12.5) - 12.5) + "mg - " + df.format((defaultValue * 0.02 * 12.5) + 12.5) + "mg";
+            text = "Cholesterol: " + df.format((defaultValue * 0.02 * 12.5) - 12.5) + " mg - " + df.format((defaultValue * 0.02 * 12.5) + 12.5) + " mg";
             cholesterolText.setText(text);
         }
         else {
             double cholValue = cholesterolSeek.getProgress() * 0.02 * 12.5;
-            text = "Cholesterol: " + df.format(cholValue - 12.5) + "mg - " + df.format(cholValue + 12.5) + "mg";
+            text = "Cholesterol: " + df.format(cholValue - 12.5) + " mg - " + df.format(cholValue + 12.5) + " mg";
             cholesterolText.setText(text);
         }
         if (mDatabaseHelper.settingsGetData("fiber") == 50) {
@@ -203,7 +203,7 @@ public class TestSettingsActivity extends AppCompatActivity{
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 calorieProgress = progress;
                 double calorieValue = progress * 0.02 * 1.25;
-                String text = "Calorie Density: " + df.format(calorieValue - .25) + " cal/serving - " + df.format(calorieValue + .25) + " cal/serving";
+                String text = "Calorie Density: " + df.format(calorieValue - .25) + " cal/g - " + df.format(calorieValue + .25) + " cal/g";
                 calorieText.setText(text);
             }
 
@@ -339,7 +339,7 @@ public class TestSettingsActivity extends AppCompatActivity{
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 cholProgress = progress;
                 double cholValue = progress * 0.02 * 12.5;
-                String text = "Cholesterol: " + df.format(cholValue - 12.5) + "mg - " + df.format(cholValue + 12.5) + "mg";
+                String text = "Cholesterol: " + df.format(cholValue - 12.5) + " mg - " + df.format(cholValue + 12.5) + " mg";
                 cholesterolText.setText(text);
             }
 

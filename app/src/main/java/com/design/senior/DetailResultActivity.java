@@ -591,7 +591,7 @@ public class DetailResultActivity extends AppCompatActivity implements ServingDi
                 textView = new TextView(this);
                 textView.setTextColor(Color.parseColor("#000000"));
                 textView.setLayoutParams(textParams);
-                textView.append("Accepted value: " + df.format((mDatabaseHelper.settingsGetData("calorie") * 0.02 * 1.25) - .25) + " cal/serving - " + df.format((mDatabaseHelper.settingsGetData("calorie") * 0.02 * 1.25) + .25) + " cal/serving");
+                textView.append("Accepted value: " + df.format((mDatabaseHelper.settingsGetData("calorie") * 0.02 * 1.25) - .25) + " cal/g - " + df.format((mDatabaseHelper.settingsGetData("calorie") * 0.02 * 1.25) + .25) + " cal/g");
                 row.addView(textView);
                 testTable.addView(row);
 

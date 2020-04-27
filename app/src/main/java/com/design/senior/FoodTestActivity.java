@@ -36,15 +36,15 @@ public class FoodTestActivity {
         double density = calories / servingSize;
 
         if (density <= (testValue - .25)) {
-            testResult = "Calorie Density: " + df.format(density) + " cal/serving";
+            testResult = "Calorie Density: " + df.format(density) + " cal/g";
             testRating = 2;
         }
         else if ((density > (testValue - .25)) & (density <= (testValue + .25))) {
-            testResult = "Calorie Density: " + df.format(density) + " cal/serving";
+            testResult = "Calorie Density: " + df.format(density) + " cal/g";
             testRating = 1;
         }
         else {
-            testResult = "Calorie Density: " + df.format(density) + " cal/serving";
+            testResult = "Calorie Density: " + df.format(density) + " cal/g";
             testRating = 0;
         }
         if((testRating == -1) | (testResult.isEmpty())){
